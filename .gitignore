@@ -33,6 +33,7 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+!server/.env.example
 
 # vercel
 .vercel
@@ -43,6 +44,10 @@ next-env.d.ts
 
 # Purchased art. License allows use inside the app, not redistribution of the pack.
 /Office_Pixel_Art_Premium_v1.0
+
+# API service
+/server/node_modules
+/server/dist
 
 # Beads / Dolt files (added by bd init)
 .dolt/

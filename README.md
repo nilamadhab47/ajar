@@ -90,7 +90,20 @@ Your name, look, door, desk, and a few UI preferences persist in this browser un
 | World | Phaser 3, client-only. Audio in Phaser is off. |
 | UI | Tailwind CSS v4, Radix, Zustand |
 
-The planned backend is a NestJS API, a Go floor gateway, PostgreSQL, Redis, and LiveKit. LiveKit would carry audio only after a knock is accepted. The design is in [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md). Nothing in that list is running here.
+The planned backend is a NestJS API, a Go floor gateway, PostgreSQL, Redis, and LiveKit. LiveKit would carry audio only after a knock is accepted. The design is in [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md). The API shell and the Postgres schema are in this repo. Auth routes, the gateway, Redis, and LiveKit are not.
+
+## API shell
+
+From the repo root, with Docker running. Postgres is published on port 55432 so it does not collide with a database already on 5432.
+
+```
+docker compose up -d postgres
+npm --prefix server install
+npm --prefix server run migrate
+npm --prefix server run start:dev
+```
+
+`GET http://localhost:4000/health` checks Postgres. The service has no sign-in or office routes yet. The office in the browser still runs without it.
 
 ## Connecting a backend later
 

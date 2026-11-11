@@ -32,8 +32,8 @@ wide open.
 | Layer | State |
 |---|---|
 | Frontend | **Built and playable.** Next.js + Phaser. Typecheck, lint and production build pass. |
-| Backend | **Not built.** A mock realtime adapter simulates the server in the browser. Design is in SYSTEM_DESIGN.md. |
-| Database | **None.** Local persistence via `localStorage` keys prefixed `ajar.`. A first load copies any leftover `veranda.*` keys across (`src/lib/storage.ts`). Schema proposed in SYSTEM_DESIGN.md §7. |
+| Backend | **Shell only.** NestJS in `server/` and a Postgres schema for accounts and offices. No auth or office routes yet. The office still uses the mock adapter. |
+| Database | **Schema only.** `server/migrations/001_auth.sql` creates the account and office tables. The app still persists in this browser under `ajar.` keys. |
 | Audio/video | Local capture + preview only. No transport. UI labels conversations **Simulated**. Phaser audio is off. |
 | Art | Original, procedurally generated from code (`src/art`). Starter quality, replaceable. |
 
