@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ajar
+      POSTGRES_PASSWORD: ajar
+      POSTGRES_DB: ajar
+    ports:
+      - "55432:5432"
+    volumes:
+      - ajar_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ajar -d ajar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ajar_postgres:
