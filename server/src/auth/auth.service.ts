@@ -19,7 +19,7 @@ import {
   tokenHash,
 } from "./tokens";
 
-type Grant = {
+export type SessionGrant = {
   accessToken: string;
   expiresIn: number;
   refreshToken: string;
@@ -68,7 +68,7 @@ export class AuthService {
   }
 
   /** Consumes a link once and opens a session for that email. */
-  async consumeMagicLink(token: string, userAgent: string | undefined): Promise<Grant> {
+  async consumeMagicLink(token: string, userAgent: string | undefined): Promise<SessionGrant> {
     const secret = this.jwtSecret();
     return this.database.transaction(async (query) => {
       const link = await query<{ email: string }>(
@@ -101,7 +101,7 @@ export class AuthService {
   }
 
   /** Rotates the refresh token. A reused token revokes the whole session family. */
-  async refresh(refreshToken: string, userAgent: string | undefined): Promise<Grant> {
+  async refresh(refreshToken: string, userAgent: string | undefined): Promise<SessionGrant> {
     const secret = this.jwtSecret();
     const outcome = await this.database.transaction(async (query) => {
       const found = await query<SessionRow>(
@@ -140,6 +140,17 @@ export class AuthService {
     return outcome.grant;
   }
 
+  /** Opens a new session family for a user who already proved who they are. */
+  async openSession(userId: string, userAgent: string | undefined): Promise<SessionGrant> {
+    const secret = this.jwtSecret();
+    return this.database.transaction(async (query) => {
+      const family = await query<{ id: string }>("select uuidv7() as id");
+      const familyId = family.rows[0]?.id;
+      if (!familyId) throw new UnauthorizedException({ ok: false });
+      return this.insertSession(query, userId, familyId, userAgent, secret);
+    });
+  }
+
   /** Revokes the session that matches the refresh cookie. */
   async logout(refreshToken: string | undefined): Promise<void> {
     if (!refreshToken) return;
@@ -168,7 +179,7 @@ export class AuthService {
     familyId: string,
     userAgent: string | undefined,
     secret: string,
-  ): Promise<Grant> {
+  ): Promise<SessionGrant> {
     const refreshToken = randomToken();
     const inserted = await query<{ id: string }>(
       `insert into sessions (user_id, refresh_token_hash, family_id, expires_at, user_agent)
