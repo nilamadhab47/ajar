@@ -34,6 +34,35 @@ export class DatabaseService implements OnModuleDestroy {
     return this.pool.query<T>(text, params);
   }
 
+  /** Runs the callback in one transaction and rolls it back when the callback throws. */
+  async transaction<T>(
+    run: (
+      query: <R extends QueryResultRow = QueryResultRow>(
+        text: string,
+        params?: unknown[],
+      ) => Promise<QueryResult<R>>,
+    ) => Promise<T>,
+  ): Promise<T> {
+    const client = await this.pool.connect();
+    try {
+      await client.query("begin");
+      const result = await run((text, params) => client.query(text, params));
+      await client.query("commit");
+      return result;
+    } catch (error) {
+      try {
+        await client.query("rollback");
+      } catch (rollbackError) {
+        this.logger.error(
+          rollbackError instanceof Error ? rollbackError.message : "rollback failed",
+        );
+      }
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   /** Closes every pooled connection when the application shuts down. */
   async onModuleDestroy() {
     await this.pool.end();

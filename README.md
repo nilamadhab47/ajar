@@ -90,20 +90,25 @@ Your name, look, door, desk, and a few UI preferences persist in this browser un
 | World | Phaser 3, client-only. Audio in Phaser is off. |
 | UI | Tailwind CSS v4, Radix, Zustand |
 
-The planned backend is a NestJS API, a Go floor gateway, PostgreSQL, Redis, and LiveKit. LiveKit would carry audio only after a knock is accepted. The design is in [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md). The API shell and the Postgres schema are in this repo. Auth routes, the gateway, Redis, and LiveKit are not.
+The planned backend is a NestJS API, a Go floor gateway, PostgreSQL, Redis, and LiveKit. LiveKit would carry audio only after a knock is accepted. The design is in [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md). The API can send a magic link and issue a session. Google, Microsoft, the gateway, Redis, and LiveKit are not running.
 
 ## API shell
 
 From the repo root, with Docker running. Postgres is published on port 55432 so it does not collide with a database already on 5432.
 
 ```
-docker compose up -d postgres
+docker compose up -d postgres mailpit
 npm --prefix server install
 npm --prefix server run migrate
+```
+
+Copy `server/.env.example` to `server/.env` and set `JWT_SECRET` to at least 32 characters. Then:
+
+```
 npm --prefix server run start:dev
 ```
 
-`GET http://localhost:4000/health` checks Postgres. The service has no sign-in or office routes yet. The office in the browser still runs without it.
+`GET http://localhost:4000/health` checks Postgres. `POST /auth/magic-link` sends a one-time link to Mailpit at http://127.0.0.1:8025. The office in the browser still runs without the API.
 
 ## Connecting a backend later
 
