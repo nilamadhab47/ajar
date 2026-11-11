@@ -1,12 +1,12 @@
-# Ajar — multiplayer virtual office (frontend starter)
+# Ajar — a quiet office for remote teams
 
-A playable, top-down 2D office for remote teams: walk around, bump into people, sit at your desk, join a room,
-chat. Phaser 3 renders and simulates the world; React renders the application around it. Everything runs
-without a backend through a mock realtime adapter, and the integration seams for your backend are typed and
-isolated.
+Be around, on your terms.
 
-The product name is Ajar. "Marigold Studio" is the demo company. All artwork is original and generated from code in this
-repository (see [docs/ASSETS.md](docs/ASSETS.md)). Brand, voice and the name: [docs/BRAND.md](docs/BRAND.md).
+Ajar is a top-down pixel-art office for distributed teams. You can see who is around, knock before a conversation starts, or leave people alone. Not every hello needs a meeting.
+
+The name means a door left slightly open: approachable, not wide open. Walking near someone makes them knockable. It never opens a microphone. Each person has a **status** (what they are doing) and a **door** (how they want to be approached). The door shows as a lantern: a full lamp is ajar, a half lamp means ask first, an unlit lamp means closed.
+
+This repository is the playable frontend. There is no backend yet. A mock adapter in the browser plays the other people. "Marigold Studio" is the demo company. The office you walk into is named Ajar.
 
 ## Run it
 
@@ -27,8 +27,19 @@ npm run dev                  # http://localhost:3000  →  /workspace/demo/offic
 | `npm run assets` | Regenerates `public/assets/**` from `src/art` |
 | `npm run maps` | Regenerates `public/maps/*.json` from `scripts/build-maps.ts` |
 
-Routes: `/` redirects to `/workspace/demo/office` (the office). `/workspace/demo` is the lobby you land on after
-"Leave office".
+`/` redirects to `/workspace/demo/office`. `/workspace/demo` is the lobby you land on after "Leave office".
+
+## The door
+
+| Door | What a knock does | Lantern |
+|---|---|---|
+| Ajar | Accepted on the click. Text chat opens. | Full gold lamp |
+| Ask first (the default) | They accept, decline, or reply later | Half lamp |
+| Closed | Leave a note, up to 280 characters | Unlit lamp with a slash |
+
+Focus and Do not disturb close the door until that status ends. A knock does not turn the microphone or camera on. In the demo the other person is simulated, and the conversation card says **Simulated**.
+
+Desk drops, personal office hours, the focus timer, and "while you were away" are specified and not built yet. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Controls
 
@@ -42,25 +53,46 @@ Routes: `/` redirects to `/workspace/demo/office` (the office). `/workspace/demo
 | E | Interact with the highlighted object / stand up |
 | Enter | Say something to people nearby (speech bubble) |
 | C · P · Tab | Chat · People · People search |
-| M · V | Microphone · camera |
+| M · V | Microphone · camera (only when you choose) |
 | H | Emote menu |
 | G | Walk to my desk |
 | Esc | Close panels, cancel walking |
 
-Shortcuts are rebindable in Settings and are suspended while you type or a dialog/menu has the keyboard.
+Shortcuts are rebindable in Settings and pause while you type or a dialog has the keyboard.
 
-## Things to try in the demo
+## Things to try
 
 1. First run opens the avatar builder. Pick a name and a look.
-2. Walk up to a desk in the open workspace, press **E**, claim it, decorate it, sit.
-3. Walk to the lounge. People within 5 tiles appear in **Nearby**; wave, talk, or message them.
-4. Enter the Atlas Room (private area): the banner lists who is inside and offers the room conversation.
-   Press **E** at the wall display to open the room and join "Design Crit".
-5. Ring the gong, brew a coffee, open a whiteboard, take the elevator to another floor.
-6. Settings → **Map edit mode** to select, drag, remove and add objects.
-7. Settings → **Simulate a network drop** to see the reconnecting state.
+2. Set your door from the status menu: Door ajar, Ask first, or Door closed.
+3. Walk up to someone. Within 5 tiles they appear in **Nearby**. Knock, wave, or message them. Priya's door is ajar. Ingrid's is closed, so you leave a note.
+4. Claim a desk in Product, Engineering, or Design. Press **E**, decorate it, and sit.
+5. Step into Atlas, Birch, the Kitchen, Library, Lounge, Quiet Zone, Reception, Studio, or the Garden. Each room has a name on the floor. A quiet room shrinks knock range to about a tile.
+6. In Atlas, press **E** at the wall display to open the room and join "Design Crit".
+7. Ring the gong, brew a coffee, open a whiteboard, or take the elevator to another floor.
+8. Settings → **Map edit mode** to select, drag, remove, and add objects. Publish waits on a backend.
+9. Settings → **Simulate a network drop** to see the reconnecting state.
 
-## Connecting your backend
+## What you can walk through
+
+One furnished floor, 64 × 40 tiles: an open workspace with 12 desks, Atlas and Birch, a kitchen, a library, a lounge, a quiet zone, reception, a studio, and a garden. Floors 2–5 are walkable placeholders, reached by elevator, stairs, or the mini-map.
+
+Characters are layered: skin, hair, face, clothes, glasses, hats, and small accessories. They idle, walk, sit, wave, dance, clap, and celebrate. Nameplates show status and the lantern.
+
+Around the map: People, chat, meetings, a mini-map, a profile card, a nearby card, whiteboards, and an avatar builder. Chat has channels, a group, and direct messages. Nearby speech bubbles stay separate from that history. Demo people are always labelled **Demo**.
+
+Your name, look, door, desk, and a few UI preferences persist in this browser under keys prefixed `ajar.`.
+
+## Stack
+
+| Concern | Choice |
+|---|---|
+| App | Next.js 16, React 19, TypeScript |
+| World | Phaser 3, client-only. Audio in Phaser is off. |
+| UI | Tailwind CSS v4, Radix, Zustand |
+
+The planned backend is a NestJS API, a Go floor gateway, PostgreSQL, Redis, and LiveKit. LiveKit would carry audio only after a knock is accepted. The design is in [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md). Nothing in that list is running here.
+
+## Connecting a backend later
 
 Set in `.env.local`:
 
@@ -70,83 +102,40 @@ NEXT_PUBLIC_WS_URL=wss://rt.example.com/office
 NEXT_PUBLIC_REALTIME_MODE=websocket
 ```
 
-- **Realtime** — `src/services/realtime/`. `RealtimeAdapter` is the only interface the app uses.
-  `WebSocketRealtimeAdapter` sends `{ event, payload }` JSON envelopes with reconnection and backoff; override its
-  `encode`/`decode` to match your wire format. Event names and payload types are in `realtime-events.ts`.
-- **REST** — `src/services/api/`. Each function has a mock branch and a proposed endpoint.
-  `setAuthTokenProvider()` in `api-client.ts` injects your auth token.
-- **Media** — `src/services/media/media-adapter.ts`. Implement `MediaAdapter` for your SFU/mesh and return it from
-  `getMediaAdapter()` in `src/features/media/media-controller.ts`.
-
-Details, data flow and the full event list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Realtime** — `src/services/realtime/`. The app talks only to `RealtimeAdapter`. Event names are in `realtime-events.ts`.
+- **REST** — `src/services/api/`. `setAuthTokenProvider()` in `api-client.ts` attaches the access token. The token stays in memory.
+- **Media** — implement `MediaAdapter` and return it from `getMediaAdapter()`. Do not label a conversation connected unless the transport is real.
 
 ## Docs
 
 | Doc | For |
 |---|---|
-| [docs/PRODUCT_CONTEXT.md](docs/PRODUCT_CONTEXT.md) | Product, what's built, file map, conventions (start here; IDE assistants load it via `AGENTS.md` / `CLAUDE.md` / `.cursor/rules`) |
-| [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) | Backend, database, realtime, media and AWS design |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Prioritised remaining features and differentiators vs Gather |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Frontend internals |
+| [docs/PRODUCT_CONTEXT.md](docs/PRODUCT_CONTEXT.md) | What exists, where code lives, rules not to break |
+| [docs/BRAND.md](docs/BRAND.md) | The name, voice, and consent rules |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How Phaser and React meet |
+| [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) | Backend, database, and realtime design |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | What to build next |
 | [docs/ASSETS.md](docs/ASSETS.md) | Art pipeline and licences |
 
-## What is complete
+## Still ahead
 
-**World** — one fully furnished floor (64 × 40 tiles): open workspace with 12 desks, two meeting rooms, kitchen,
-library, collaboration lounge, quiet zone with booths, reception, creative studio, garden. Tiled-compatible JSON
-maps with five tile layers plus object, room, spawn, label and collision layers. Four placeholder floors reachable
-by elevator and stairs.
-
-**Characters** — layered avatar compositor (skin, 10 hairstyles, 8 faces, 5 tops, 3 bottoms, 3 shoes, glasses,
-hats, headphones, bags, small accessories). Idle with breathing and blinking, four-direction walk, sit, wave,
-dance, clap, celebrate. Shadows, Y-sorted depth, nameplates with status dot and emoji that declutter and shrink
-when zoomed out.
-
-**Movement and camera** — frame-rate independent movement with sub-stepped grid collision, A* click-to-move with
-nearest-reachable fallback, follow a person, camera follow / pan / zoom / recenter / bounds.
-
-**Interaction** — one registry keyed by interaction type: desks, seats (chairs, sofas, benches, stools, bean
-bags), whiteboards, meeting-room displays and panels, coffee machine, water, fridge, gong, bookshelves, printer,
-reception, elevator, stairs.
-
-**Proximity** — configurable discovery (5 tiles) and close (2 tiles) radii, quiet areas (1 tile), private zones
-that group everyone inside and exclude everyone outside, do-not-disturb respected, conversations that end when you
-walk away.
-
-**Application UI** — top navigation with global search, navigation rail, right drawer (People, Chat, Meetings,
-Activity), floating toolbar, mini-map with click-to-pan and floor switcher, profile card, nearby card, room
-banner, conversation card, meeting view, room dialog, desk dialog, whiteboard, avatar builder, settings with
-shortcut rebinding, help, notifications, lobby.
-
-**Chat** — channels, group, DMs, timestamps, avatars, unread counts, reactions, threads, attachments (names
-only), cross-conversation search, Enter / Shift+Enter, nearby speech bubbles kept separate from permanent chat.
-
-**Demo mode** — 14 seeded participants with routines (desk work with breaks, a meeting, a lounge group, a
-receptionist, a coffee break), presence changes, channel chatter, DM auto-replies, waving back. Always labelled
-as demo. Avatar, profile, status, desk, decorations and UI preferences persist in `localStorage`.
-
-## What needs your backend
-
-| Area | State today | To finish |
+| Area | Today | Next |
 |---|---|---|
-| Authentication, user profile | Local profile in `localStorage` | `usersApi`, `setAuthTokenProvider` |
-| Presence and movement of real users | Simulated by `MockRealtimeAdapter` | Serve the events in `realtime-events.ts` |
-| Audio / video | Local capture and preview only; conversations are marked **Simulated** and never report "connected" | A `MediaAdapter` on your signalling + SFU |
-| Screen sharing | Real `getDisplayMedia` capture, local preview | Distribute the track through the media layer |
-| Chat persistence, history, file upload | In-memory; attachments record name and size only | `chatApi` + `chat:send` / `chat:message` |
-| Meetings, calendar, invitations | Seeded and local | `workspaceApi.listMeetings/saveMeeting`, calendar integration |
-| Desk assignment | Local claim; seeded assignments for demo users | `worldApi.claimDesk/releaseDesk` |
-| Whiteboard sync | Per-browser session memory | Stroke/note sync (CRDT or op stream) |
-| Map publishing | Edit mode changes live in memory until reload | `worldApi.saveObjects` |
-| Multiple workspaces | One demo workspace; switcher shows it | `workspaceApi` |
-| Floors 2–5 | Walkable placeholders | Design them in `scripts/build-maps.ts` or Tiled |
+| Sign-in and roles | A local profile in this browser | Accounts we build ourselves: magic link, Google, Microsoft. Roles are owner, admin, member, and guest per office. |
+| Other people | 14 simulated coworkers | The Go gateway |
+| Audio and video | Local preview only | LiveKit after an accepted knock |
+| Desks | Claimed in this browser | One desk per person per office |
+| Chat, meetings, whiteboards, map edits | In this browser | The API |
+| Desk drops, office hours, away digest | Not built | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
-## Known limitations
+Job titles such as CEO or HR are a line on the profile. They are not permissions. Product, Engineering, and Design are names on the floor, not department membership.
 
-- Characters do not collide with each other (you can walk through people).
-- The canvas renders at CSS-pixel resolution; pixel art stays crisp through nearest-neighbour scaling, but it is
-  not rendered at device-pixel resolution on HiDPI screens.
-- Verified in headless Chromium (software rendering) only. Frame rate on real hardware and behaviour on touch
-  devices (virtual joystick) have not been measured.
-- The art is procedural starter art: cohesive and original, but intended to be replaced or extended by an artist.
-- In demo mode `window.__ajar` exposes the world stores and command bus for debugging.
+## Known limits
+
+- Characters can walk through each other.
+- The canvas is CSS pixels, so the pixel art is crisp but not drawn at device-pixel resolution.
+- Edit mode cannot create rooms, paint tiles, or publish.
+- Floors 2–5 are placeholders.
+- The mark in the corner is still the older arch. The welcome sign reads AJAR. The door-and-lamp logo is not drawn yet.
+- The art in `public/assets` is generated by this repo. It is starter art, meant to be replaced.
+- In demo mode, `window.__ajar` exposes the world stores and the command bus for debugging.
