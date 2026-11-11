@@ -1,0 +1,209 @@
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { DatabaseService } from "../database/database.service";
+import { sendMagicLink } from "./mailer";
+import { RequestRateLimit } from "./rate-limit";
+import {
+  accessTokenTtlSeconds,
+  randomToken,
+  readAccessToken,
+  signAccessToken,
+  tokenHash,
+} from "./tokens";
+
+type Grant = {
+  accessToken: string;
+  expiresIn: number;
+  refreshToken: string;
+};
+
+type SessionRow = {
+  id: string;
+  user_id: string;
+  family_id: string;
+  expires_at: Date;
+  revoked_at: Date | null;
+};
+
+/** Magic links and rotating sessions. Office membership is a later issue. */
+@Injectable()
+export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+  private readonly limits = new RequestRateLimit();
+
+  constructor(
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+    @Inject(ConfigService) private readonly config: ConfigService,
+  ) {}
+
+  /** Stores a hashed 15-minute link and sends it. Every accepted email gets the same result. */
+  async requestMagicLink(email: string, clientKey: string): Promise<void> {
+    const normalized = email.trim().toLowerCase();
+    if (!this.limits.allow(`ip:${clientKey}`) || !this.limits.allow(`email:${normalized}`)) {
+      throw new HttpException({ ok: false }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    const token = randomToken();
+    await this.database.query(
+      `insert into magic_links (email, token_hash, expires_at)
+       values ($1, $2, now() + interval '15 minutes')`,
+      [normalized, tokenHash(token)],
+    );
+
+    try {
+      await sendMagicLink(this.config, normalized, token);
+    } catch (error) {
+      this.logger.error(
+        error instanceof Error ? `Magic link mail failed: ${error.message}` : "Magic link mail failed",
+      );
+    }
+  }
+
+  /** Consumes a link once and opens a session for that email. */
+  async consumeMagicLink(token: string, userAgent: string | undefined): Promise<Grant> {
+    const secret = this.jwtSecret();
+    return this.database.transaction(async (query) => {
+      const link = await query<{ email: string }>(
+        `update magic_links
+         set used_at = now()
+         where token_hash = $1
+           and used_at is null
+           and expires_at > now()
+         returning email`,
+        [tokenHash(token)],
+      );
+      const email = link.rows[0]?.email;
+      if (!email) throw new UnauthorizedException({ ok: false });
+
+      const user = await query<{ id: string }>(
+        `insert into users (email, display_name)
+         values ($1, $2)
+         on conflict (email) do update set email = users.email
+         returning id`,
+        [email, displayNameFromEmail(email)],
+      );
+      const userId = user.rows[0]?.id;
+      if (!userId) throw new UnauthorizedException({ ok: false });
+
+      const family = await query<{ id: string }>("select uuidv7() as id");
+      const familyId = family.rows[0]?.id;
+      if (!familyId) throw new UnauthorizedException({ ok: false });
+      return this.insertSession(query, userId, familyId, userAgent, secret);
+    });
+  }
+
+  /** Rotates the refresh token. A reused token revokes the whole session family. */
+  async refresh(refreshToken: string, userAgent: string | undefined): Promise<Grant> {
+    const secret = this.jwtSecret();
+    const outcome = await this.database.transaction(async (query) => {
+      const found = await query<SessionRow>(
+        `select id, user_id, family_id, expires_at, revoked_at
+         from sessions
+         where refresh_token_hash = $1
+         for update`,
+        [tokenHash(refreshToken)],
+      );
+      const session = found.rows[0];
+      if (!session || new Date(session.expires_at).getTime() <= Date.now()) {
+        return { kind: "reject" as const };
+      }
+
+      if (session.revoked_at) {
+        await query(
+          `update sessions
+           set revoked_at = now()
+           where family_id = $1 and revoked_at is null`,
+          [session.family_id],
+        );
+        return { kind: "reject" as const };
+      }
+
+      await query("update sessions set revoked_at = now() where id = $1", [session.id]);
+      const grant = await this.insertSession(
+        query,
+        session.user_id,
+        session.family_id,
+        userAgent,
+        secret,
+      );
+      return { kind: "grant" as const, grant };
+    });
+    if (outcome.kind === "reject") throw new UnauthorizedException({ ok: false });
+    return outcome.grant;
+  }
+
+  /** Revokes the session that matches the refresh cookie. */
+  async logout(refreshToken: string | undefined): Promise<void> {
+    if (!refreshToken) return;
+    await this.database.query(
+      `update sessions
+       set revoked_at = now()
+       where refresh_token_hash = $1 and revoked_at is null`,
+      [tokenHash(refreshToken)],
+    );
+  }
+
+  /** Revokes every session for the access token's user. */
+  async logoutAll(accessToken: string): Promise<void> {
+    const claims = this.readUser(accessToken);
+    await this.database.query(
+      `update sessions
+       set revoked_at = now()
+       where user_id = $1 and revoked_at is null`,
+      [claims.sub],
+    );
+  }
+
+  private async insertSession(
+    query: DatabaseService["query"],
+    userId: string,
+    familyId: string,
+    userAgent: string | undefined,
+    secret: string,
+  ): Promise<Grant> {
+    const refreshToken = randomToken();
+    const inserted = await query<{ id: string }>(
+      `insert into sessions (user_id, refresh_token_hash, family_id, expires_at, user_agent)
+       values ($1, $2, $3, now() + interval '30 days', $4)
+       returning id`,
+      [userId, tokenHash(refreshToken), familyId, userAgent?.slice(0, 500) ?? null],
+    );
+    const sessionId = inserted.rows[0]?.id;
+    if (!sessionId) throw new UnauthorizedException({ ok: false });
+    return {
+      accessToken: signAccessToken({ sub: userId, sid: sessionId }, secret),
+      expiresIn: accessTokenTtlSeconds,
+      refreshToken,
+    };
+  }
+
+  private readUser(accessToken: string): { sub: string; sid: string } {
+    try {
+      return readAccessToken(accessToken, this.jwtSecret());
+    } catch {
+      throw new UnauthorizedException({ ok: false });
+    }
+  }
+
+  private jwtSecret(): string {
+    const secret = this.config.get<string>("JWT_SECRET");
+    if (!secret || secret.length < 32) {
+      throw new ServiceUnavailableException("JWT_SECRET is not configured");
+    }
+    return secret;
+  }
+}
+
+/** Uses the mailbox name as a first display name. */
+function displayNameFromEmail(email: string): string {
+  const local = email.split("@")[0]?.replace(/[._-]+/g, " ").trim();
+  return local ? local.slice(0, 80) : "New member";
+}
