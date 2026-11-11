@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 
+/** Starts the API and allows the office app to call it from local development. */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
