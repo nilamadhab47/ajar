@@ -1,0 +1,8 @@
+---
+description: Ajar virtual office — product and codebase context
+alwaysApply: true
+---
+Before changing code, read docs/PRODUCT_CONTEXT.md (product, current state, file map, conventions).
+For the name Ajar, voice, and UI copy, read docs/BRAND.md.
+For backend/DB work read docs/SYSTEM_DESIGN.md. For what to build next read docs/ROADMAP.md.
+Frontend internals: docs/ARCHITECTURE.md. Next.js here is v16: check node_modules/next/dist/docs/ for APIs.
