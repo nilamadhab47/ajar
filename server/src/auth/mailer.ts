@@ -5,15 +5,15 @@ import { buildMagicLinkMessage } from "./magic-link-message";
 
 const logger = new Logger("MagicLinkMail");
 
-/** Sends the sign-in email through Resend when a key is set, and through Mailpit otherwise. */
-export async function sendMagicLink(
+type OutboundMail = { subject: string; text: string; html: string };
+
+/** Sends one message through Resend when a key is set, and through Mailpit otherwise. */
+export async function sendPreparedMessage(
   config: ConfigService,
   email: string,
-  token: string,
+  message: OutboundMail,
 ): Promise<void> {
-  const origin = config.get<string>("APP_ORIGIN") ?? "http://localhost:3000";
   const from = config.get<string>("MAIL_FROM") ?? "Ajar <ajar@localhost>";
-  const message = buildMagicLinkMessage(origin, token);
   const apiKey = config.get<string>("RESEND_API_KEY");
 
   if (apiKey) {
@@ -32,7 +32,17 @@ export async function sendMagicLink(
     text: message.text,
     html: message.html,
   });
-  logger.log("Magic link accepted by the local mail catcher");
+  logger.log("Mail accepted by the local mail catcher");
+}
+
+/** Sends the magic-link sign-in email. The token is not logged. */
+export async function sendMagicLink(
+  config: ConfigService,
+  email: string,
+  token: string,
+): Promise<void> {
+  const origin = config.get<string>("APP_ORIGIN") ?? "http://localhost:3000";
+  await sendPreparedMessage(config, email, buildMagicLinkMessage(origin, token));
 }
 
 /** Delivers one transactional message. The error text does not include the message body. */
@@ -40,7 +50,7 @@ async function sendWithResend(
   apiKey: string,
   from: string,
   email: string,
-  message: ReturnType<typeof buildMagicLinkMessage>,
+  message: OutboundMail,
 ): Promise<void> {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

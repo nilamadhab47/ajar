@@ -6,7 +6,7 @@ import { CurrentUserService } from "./current-user";
 import { OauthController } from "./oauth.controller";
 import { OauthService } from "./oauth.service";
 
-/** Sign-in by magic link, Google, and Microsoft. */
+/** Sign-in by magic link, password, Google, and Microsoft. */
 @Module({
   imports: [DatabaseModule],
   controllers: [AuthController, OauthController],

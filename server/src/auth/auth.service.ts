@@ -4,12 +4,15 @@ import {
   Inject,
   Injectable,
   Logger,
+  OnModuleInit,
   ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DatabaseService } from "../database/database.service";
-import { sendMagicLink } from "./mailer";
+import { sendMagicLink, sendPreparedMessage } from "./mailer";
+import { buildAccountExistsMessage, buildPasswordConfirmMessage } from "./password-message";
+import { dummyPasswordHash, hashPassword, prepareDummyPasswordHash, verifyPassword } from "./passwords";
 import { RequestRateLimit } from "./rate-limit";
 import {
   accessTokenTtlSeconds,
@@ -33,9 +36,9 @@ type SessionRow = {
   revoked_at: Date | null;
 };
 
-/** Magic links and rotating sessions. Office membership is a later issue. */
+/** Magic links, passwords, and rotating sessions. Office membership is a later issue. */
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
   private readonly limits = new RequestRateLimit();
 
@@ -43,6 +46,11 @@ export class AuthService {
     @Inject(DatabaseService) private readonly database: DatabaseService,
     @Inject(ConfigService) private readonly config: ConfigService,
   ) {}
+
+  /** Prepares the unknown-account password check before the first sign-in. */
+  async onModuleInit(): Promise<void> {
+    await prepareDummyPasswordHash();
+  }
 
   /** Stores a hashed 15-minute link and sends it. Every accepted email gets the same result. */
   async requestMagicLink(email: string, clientKey: string): Promise<void> {
@@ -52,6 +60,7 @@ export class AuthService {
     }
 
     const token = randomToken();
+    await this.forgetExpiredLinks();
     await this.database.query(
       `insert into magic_links (email, token_hash, expires_at)
        values ($1, $2, now() + interval '15 minutes')`,
@@ -71,13 +80,13 @@ export class AuthService {
   async consumeMagicLink(token: string, userAgent: string | undefined): Promise<SessionGrant> {
     const secret = this.jwtSecret();
     return this.database.transaction(async (query) => {
-      const link = await query<{ email: string }>(
+      const link = await query<{ email: string; password_hash: string | null }>(
         `update magic_links
          set used_at = now()
          where token_hash = $1
            and used_at is null
            and expires_at > now()
-         returning email`,
+         returning email, password_hash`,
         [tokenHash(token)],
       );
       const email = link.rows[0]?.email;
@@ -92,12 +101,83 @@ export class AuthService {
       );
       const userId = user.rows[0]?.id;
       if (!userId) throw new UnauthorizedException({ ok: false });
+      if (link.rows[0]?.password_hash) {
+        await query(
+          `update users
+           set password_hash = $2, updated_at = now()
+           where id = $1 and password_hash is null`,
+          [userId, link.rows[0].password_hash],
+        );
+      }
+      await query("update magic_links set password_hash = null where token_hash = $1", [
+        tokenHash(token),
+      ]);
 
-      const family = await query<{ id: string }>("select uuidv7() as id");
-      const familyId = family.rows[0]?.id;
-      if (!familyId) throw new UnauthorizedException({ ok: false });
-      return this.insertSession(query, userId, familyId, userAgent, secret);
+      return this.startSession(query, userId, userAgent, secret);
     });
+  }
+
+  /** Sends a confirmation link for a new person. An existing address gets the same response and a different email. */
+  async requestPasswordSignUp(email: string, password: string, clientKey: string): Promise<void> {
+    const normalized = email.trim().toLowerCase();
+    if (
+      !this.limits.allow(`password-ip:${clientKey}`) ||
+      !this.limits.allow(`password-email:${normalized}`)
+    ) {
+      throw new HttpException({ ok: false }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    const passwordHash = await hashPassword(password);
+    const existing = await this.database.query<{ id: string }>(
+      "select id from users where email = $1",
+      [normalized],
+    );
+    if (existing.rows[0]) {
+      await this.sendQuietly(normalized, buildAccountExistsMessage());
+      return;
+    }
+
+    const token = randomToken();
+    await this.forgetExpiredLinks();
+    await this.database.query(
+      `insert into magic_links (email, token_hash, expires_at, password_hash)
+       values ($1, $2, now() + interval '15 minutes', $3)`,
+      [normalized, tokenHash(token), passwordHash],
+    );
+    const origin = this.config.get<string>("APP_ORIGIN") ?? "http://localhost:3000";
+    await this.sendQuietly(normalized, buildPasswordConfirmMessage(origin, token));
+  }
+
+  /** Signs in a person who already confirmed a password. Unknown and wrong passwords look the same. */
+  async signInWithPassword(
+    email: string,
+    password: string,
+    clientKey: string,
+    userAgent: string | undefined,
+  ): Promise<SessionGrant> {
+    const normalized = email.trim().toLowerCase();
+    if (
+      !this.limits.allow(`sign-in-ip:${clientKey}`) ||
+      !this.limits.allow(`sign-in-email:${normalized}`)
+    ) {
+      throw new HttpException({ ok: false }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    const found = await this.database.query<{ id: string; password_hash: string | null }>(
+      "select id, password_hash from users where email = $1",
+      [normalized],
+    );
+    const stored = found.rows[0]?.password_hash ?? (await dummyPasswordHash());
+    const matches = await verifyPassword(password, stored);
+    const userId = found.rows[0]?.id;
+    if (!userId || !found.rows[0]?.password_hash || !matches) {
+      throw new UnauthorizedException({ ok: false });
+    }
+
+    const secret = this.jwtSecret();
+    return this.database.transaction((query) =>
+      this.startSession(query, userId, userAgent, secret),
+    );
   }
 
   /** Rotates the refresh token. A reused token revokes the whole session family. */
@@ -171,6 +251,36 @@ export class AuthService {
        where user_id = $1 and revoked_at is null`,
       [claims.sub],
     );
+  }
+
+  private async startSession(
+    query: DatabaseService["query"],
+    userId: string,
+    userAgent: string | undefined,
+    secret: string,
+  ): Promise<SessionGrant> {
+    const family = await query<{ id: string }>("select uuidv7() as id");
+    const familyId = family.rows[0]?.id;
+    if (!familyId) throw new UnauthorizedException({ ok: false });
+    return this.insertSession(query, userId, familyId, userAgent, secret);
+  }
+
+  /** Drops unused links after they expire. There is no separate scheduler yet. */
+  private async forgetExpiredLinks(): Promise<void> {
+    await this.database.query(
+      "delete from magic_links where used_at is null and expires_at <= now()",
+    );
+  }
+
+  private async sendQuietly(
+    email: string,
+    message: { subject: string; text: string; html: string },
+  ): Promise<void> {
+    try {
+      await sendPreparedMessage(this.config, email, message);
+    } catch (error) {
+      this.logger.error(error instanceof Error ? error.message : "Mail failed");
+    }
   }
 
   private async insertSession(
