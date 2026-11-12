@@ -32,7 +32,7 @@ wide open.
 | Layer | State |
 |---|---|
 | Frontend | **Built and playable.** Next.js + Phaser. Typecheck, lint and production build pass. |
-| Backend | **Magic link, password, Google, and Microsoft.** A password is saved only after the person confirms the email. An existing address gets a notice and its password stays unchanged. Sign-in creates a person, not a company or an employee. The office still uses the mock adapter. The sign-in pages are not built. |
+| Backend | **A person can create a company.** Sign-in identifies the human. `POST /organizations` creates the company, the first office, and an owner membership. Employee invites are not built. The office in the browser still uses the mock adapter. |
 | Database | **Schema only.** `server/migrations/001_auth.sql` creates the account and office tables. The app still persists in this browser under `ajar.` keys. |
 | Audio/video | Local capture + preview only. No transport. UI labels conversations **Simulated**. Phaser audio is off. |
 | Art | Original, procedurally generated from code (`src/art`). Starter quality, replaceable. |
