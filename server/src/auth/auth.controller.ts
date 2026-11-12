@@ -34,6 +34,41 @@ export class AuthController {
     return { ok: true };
   }
 
+  /** Accepts an email and password. A new address and an existing address get the same body. */
+  @Post("password/sign-up")
+  @HttpCode(200)
+  async signUp(
+    @Body() body: { email?: unknown; password?: unknown },
+    @Req() request: Request,
+  ) {
+    if (typeof body?.email !== "string" || !isEmail(body.email) || !isPassword(body.password)) {
+      throw new BadRequestException({ ok: false });
+    }
+    await this.auth.requestPasswordSignUp(body.email, body.password, clientKey(request));
+    return { ok: true };
+  }
+
+  /** Signs in with email and password and sets the refresh cookie. */
+  @Post("password/sign-in")
+  @HttpCode(200)
+  async signIn(
+    @Body() body: { email?: unknown; password?: unknown },
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    if (typeof body?.email !== "string" || !isEmail(body.email) || !isPassword(body.password)) {
+      throw new BadRequestException({ ok: false });
+    }
+    const grant = await this.auth.signInWithPassword(
+      body.email,
+      body.password,
+      clientKey(request),
+      userAgent(request),
+    );
+    response.append("Set-Cookie", refreshCookie(grant.refreshToken));
+    return { accessToken: grant.accessToken, expiresIn: grant.expiresIn };
+  }
+
   /** Exchanges a single-use link for an access token and a refresh cookie. */
   @Post("magic-link/consume")
   @HttpCode(200)
@@ -93,6 +128,11 @@ export class AuthController {
     await this.auth.logoutAll(token);
     response.append("Set-Cookie", clearRefreshCookie());
   }
+}
+
+/** Requires a password long enough to be a secret, and short enough to hash safely. */
+function isPassword(value: unknown): value is string {
+  return typeof value === "string" && value.length >= 10 && value.length <= 128;
 }
 
 /** Accepts a plain email address and rejects anything that could be a header. */
