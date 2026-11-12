@@ -13,7 +13,7 @@ import { sendWorldCommand } from "@/features/world/world-bridge";
 import { useWorldStore } from "@/features/world/world-store";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
-import { Lantern } from "@/features/knock/Lantern";
+import { Lantern } from "@/features/knock/components/Lantern";
 import { DOOR_META, STATUS_META, effectiveDoor, type PresenceStatus, type User } from "@/types/domain";
 import { usePeopleStore } from "../people-store";
 import { useAllUsers } from "../use-people";

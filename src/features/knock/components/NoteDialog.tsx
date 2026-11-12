@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useUser } from "@/features/people/people-store";
 import { firstName } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
-import { useKnockStore } from "./knock-store";
+import { useKnockStore } from "../knock-store";
 
 /** A closed door takes a note. It never becomes a knock. */
 export function NoteDialog({ userId }: { userId: string }) {
