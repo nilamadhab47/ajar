@@ -108,7 +108,7 @@ Copy `server/.env.example` to `server/.env` and set `JWT_SECRET` to at least 32 
 npm --prefix server run start:dev
 ```
 
-`GET http://localhost:4000/health` checks Postgres. `POST /auth/magic-link` sends the sign-in email to Mailpit at http://127.0.0.1:8025. Set `RESEND_API_KEY` and a verified `MAIL_FROM` when the message should reach a real inbox. The office in the browser still runs without the API.
+`GET http://localhost:4000/health` checks Postgres. `POST /auth/magic-link` sends a sign-in link to Mailpit at http://127.0.0.1:8025. `POST /auth/password/sign-up` sends a confirmation link and saves the password only after that link is used. `POST /auth/password/sign-in` signs in a person who already confirmed one. Set `RESEND_API_KEY` and a verified `MAIL_FROM` when the message should reach a real inbox. The office in the browser still runs without the API. There is no sign-up page yet.
 
 ## Connecting a backend later
 
