@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "assets": "tsx scripts/build-assets.ts",
     "maps": "tsx scripts/build-maps.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "site-assets": "tsx scripts/build-site-assets.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.5",
@@ -18,6 +19,7 @@
     "@radix-ui/react-tooltip": "^1.4.1",
     "clsx": "^2.1.1",
     "framer-motion": "^14.12.0",
+    "gsap": "^3.15.1",
     "lucide-react": "^1.71.0",
     "next": "16.4.6",
     "phaser": "^3.90.0",

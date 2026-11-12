@@ -27,7 +27,9 @@ npm run dev                  # http://localhost:3000  →  /workspace/demo/offic
 | `npm run assets` | Regenerates `public/assets/**` from `src/art` |
 | `npm run maps` | Regenerates `public/maps/*.json` from `scripts/build-maps.ts` |
 
-`/` redirects to `/workspace/demo/office`. `/workspace/demo` is the lobby you land on after "Leave office".
+`/` is the marketing landing page ([docs/SITE.md](docs/SITE.md)); `/demo` opens the office at `/workspace/demo/office`.
+The landing page's pixel art is baked from the purchased Imersa pack: put `Office_Pixel_Art_Premium_v1.0/` in the
+repository root and run `npm run site-assets` once. `/workspace/demo` is the lobby you land on after "Leave office".
 
 ## The door
 
@@ -133,6 +135,7 @@ NEXT_PUBLIC_REALTIME_MODE=websocket
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How Phaser and React meet |
 | [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) | Backend, database, and realtime design |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | What to build next |
+| [docs/SITE.md](docs/SITE.md) | The marketing landing page: structure, design system, assets, motion, audio |
 | [docs/ASSETS.md](docs/ASSETS.md) | Art pipeline and licences |
 
 ## Still ahead

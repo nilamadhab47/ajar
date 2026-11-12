@@ -1,0 +1,862 @@
+/*
+ * Marketing site styles. Everything is scoped under .site-root so the app shell is untouched.
+ * Tokens (colours, fonts) are Tailwind theme values declared in src/app/globals.css.
+ * Rule of the page: outside the door is flat and editorial; inside the door is pixel art.
+ */
+.site-root {
+  --aubergine: #21172f;
+  --aubergine-deep: #1a1226;
+  --purple: #6c63c7;
+  --lamp: #f4c36b;
+  --ivory: #f7f3ec;
+  --mist: #e9e4f5;
+  --evening: #777481;
+  --night: #292630;
+  --sage: #c7d8c0;
+  position: relative;
+  min-height: 100dvh;
+  background: var(--ivory);
+  color: var(--night);
+  font-size: 17px;
+  line-height: 1.55;
+  overflow-x: clip;
+}
+.site-root :focus-visible {
+  outline: 2px solid var(--lamp);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.site-root ::selection {
+  background: #f4c36b;
+  color: #21172f;
+}
+html:has(.site-root) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+/* ---------- type ---------- */
+.display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 380;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.028em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+.display em {
+  font-style: italic;
+  font-weight: 340;
+  color: var(--lamp);
+}
+.display.on-light em {
+  color: var(--purple);
+}
+.h-hero {
+  font-size: clamp(2.9rem, 1.2rem + 6.6vw, 7rem);
+}
+.h-section {
+  font-size: clamp(2.25rem, 1.2rem + 3.6vw, 4.5rem);
+}
+.lede {
+  font-size: clamp(1.06rem, 0.98rem + 0.35vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.eyebrow {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.pixel-label {
+  font-family: var(--font-press), monospace;
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  padding: 0 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+  transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+.btn-lamp {
+  background: var(--lamp);
+  color: #2a1c0a;
+  box-shadow: 0 0 0 0 rgb(244 195 107 / 0);
+}
+.btn-lamp:hover {
+  background: #f8d089;
+  box-shadow: 0 0 44px -6px rgb(244 195 107 / 0.75);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  color: var(--ivory);
+  box-shadow: inset 0 0 0 1.5px rgb(247 243 236 / 0.34);
+}
+.btn-ghost:hover {
+  box-shadow: inset 0 0 0 1.5px rgb(247 243 236 / 0.8);
+}
+.btn-ink {
+  color: var(--night);
+  box-shadow: inset 0 0 0 1.5px rgb(41 38 48 / 0.28);
+}
+.btn-ink:hover {
+  box-shadow: inset 0 0 0 1.5px rgb(41 38 48 / 0.8);
+}
+.btn .arrow {
+  transition: transform 0.25s ease;
+}
+.btn:hover .arrow {
+  transform: translateX(3px);
+}
+
+/* ---------- reveal on scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--delay, 0ms);
+}
+.reveal[data-shown] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- pixel world pieces ---------- */
+@property --row {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 0;
+}
+.office-layer {
+  position: relative;
+  aspect-ratio: 1024 / 672;
+}
+.px-actor {
+  position: absolute;
+  width: 3.125%; /* 32 / 1024 */
+  aspect-ratio: 1;
+  transform: translate(-50%, -93.75%); /* feet at (16, 30) of 32 */
+  z-index: 2;
+}
+.px-actor {
+  --c: 0;
+  --frames: 1s;
+}
+.px-actor[data-walking] {
+  --frames: 0.5s;
+}
+.px-sprite {
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets/imersa/characters@3x.png");
+  background-size: 2000% 800%;
+  background-position: calc(var(--c) * 100% / 19) calc(var(--row) * 100% / 7);
+  image-rendering: pixelated;
+  animation: px-frames var(--frames) steps(4) infinite;
+}
+@keyframes px-frames {
+  from {
+    background-position-x: calc(var(--c) * 100% / 19);
+  }
+  to {
+    background-position-x: calc((var(--c) + 4) * 100% / 19);
+  }
+}
+.px-lantern {
+  position: absolute;
+  left: 50%;
+  bottom: 104%;
+  width: 28%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--lamp);
+  box-shadow: 0 0 0 2px rgb(33 23 47 / 0.75), 0 0 14px 5px rgb(244 195 107 / 0.65);
+}
+.px-lantern[data-door="ask"] {
+  background: linear-gradient(90deg, var(--lamp) 50%, #4a3d66 50%);
+  box-shadow: 0 0 0 2px rgb(33 23 47 / 0.75), 0 0 9px 2px rgb(244 195 107 / 0.35);
+}
+.px-lantern[data-door="closed"] {
+  background: #4a3d66;
+  box-shadow: 0 0 0 2px rgb(33 23 47 / 0.75);
+}
+.px-tag {
+  position: absolute;
+  left: 50%;
+  top: 104%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border-radius: 999px;
+  background: rgb(33 23 47 / 0.86);
+  padding: 2px 7px;
+  color: var(--ivory);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* =====================================================================
+   01  The open door
+   ===================================================================== */
+.door-hero {
+  position: relative;
+  height: 330vh;
+  background: var(--aubergine);
+  color: var(--ivory);
+}
+.door-stage {
+  /* Portal rectangle. JS takes over these four on scroll; the values here are the first paint. */
+  --pw: min(23vw, 44vh);
+  --ph: calc(var(--pw) * 1.92);
+  --px: 63vw;
+  --py: calc(53vh - var(--ph) / 2);
+  --door: 17deg; /* leaf angle, swinging into the office */
+  --glow: 1; /* golden haze inside the doorway */
+  --spill: 0.55; /* light on the floor */
+  --oz: 1.22; /* office zoom */
+  --ox: 0px;
+  --oy: 0px;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--aubergine);
+}
+.door-office {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, calc(100dvh * 1.5238));
+  transform: translate(calc(-50% + var(--ox)), calc(-50% + var(--oy))) scale(var(--oz));
+  will-change: transform;
+}
+.door-office .px-actor {
+  opacity: var(--life, 0);
+}
+/* The wall is four flat panels around the portal, so the hole can grow without scaling a giant layer. */
+.wall {
+  position: absolute;
+  background: var(--aubergine);
+}
+.wall-top {
+  inset: 0 0 auto 0;
+  height: max(0px, var(--py));
+}
+.wall-left {
+  top: var(--py);
+  left: 0;
+  width: max(0px, var(--px));
+  height: var(--ph);
+}
+.wall-right {
+  top: var(--py);
+  left: calc(var(--px) + var(--pw));
+  right: 0;
+  height: var(--ph);
+}
+.wall-floor {
+  top: calc(var(--py) + var(--ph));
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(var(--aubergine-deep), #150e20);
+  box-shadow: 0 -1px 0 rgb(247 243 236 / 0.09);
+}
+.portal {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  width: var(--pw);
+  height: var(--ph);
+  perspective: calc(var(--pw) * 3.2);
+  perspective-origin: 70% 50%;
+  box-shadow:
+    0 0 0 calc(var(--pw) * 0.035) #3a2c57,
+    0 0 0 calc(var(--pw) * 0.05) #171022,
+    0 0 calc(var(--pw) * 0.9) calc(var(--pw) * 0.05) rgb(244 195 107 / calc(0.26 * var(--spill) + 0.06));
+}
+.portal-haze {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 70% 55%, #ffe9bd 0%, #f4c36b 45%, #e79a4f 100%);
+  opacity: var(--glow);
+}
+.door-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: rotateY(var(--door));
+  background: linear-gradient(100deg, #5a50b4 0%, #6c63c7 55%, #8179d8 100%);
+  box-shadow: inset 0 0 0 calc(var(--pw) * 0.012) rgb(33 23 47 / 0.35);
+}
+.door-leaf::before,
+.door-leaf::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  border-radius: calc(var(--pw) * 0.02);
+  box-shadow: inset 0 0 0 calc(var(--pw) * 0.012) rgb(33 23 47 / 0.28), inset calc(var(--pw) * 0.02) calc(var(--pw) * 0.02) 0 rgb(255 255 255 / 0.07);
+}
+.door-leaf::before {
+  top: 7%;
+  height: 38%;
+}
+.door-leaf::after {
+  top: 52%;
+  height: 40%;
+}
+.door-knob {
+  position: absolute;
+  right: 7%;
+  top: 49%;
+  width: 6.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe7b5, var(--lamp) 60%, #c08a3a);
+  box-shadow: 0 0 calc(var(--pw) * 0.08) rgb(244 195 107 / 0.7);
+}
+.door-spill {
+  position: absolute;
+  left: calc(var(--px) - var(--pw) * 0.75);
+  top: calc(var(--py) + var(--ph));
+  width: calc(var(--pw) * 2.9);
+  height: calc(var(--ph) * 0.42);
+  clip-path: polygon(26% 0, 60% 0, 100% 100%, 0 100%);
+  background: linear-gradient(rgb(244 195 107 / 0.72), rgb(244 195 107 / 0) 92%);
+  opacity: var(--spill);
+  pointer-events: none;
+}
+/* Wall furniture, placed from the portal so it travels with it. */
+.door-sconce {
+  position: absolute;
+  left: calc(var(--px) - var(--pw) * 0.42);
+  top: calc(var(--py) + var(--ph) * 0.16);
+  width: calc(var(--pw) * 0.2);
+  opacity: var(--decor, 1);
+}
+.door-plant {
+  position: absolute;
+  left: calc(var(--px) + var(--pw) * 1.16);
+  top: calc(var(--py) + var(--ph) * 0.69);
+  width: calc(var(--pw) * 0.42);
+  opacity: var(--decor, 1);
+}
+.hero-copy {
+  position: absolute;
+  left: clamp(1.25rem, 6vw, 6.5rem);
+  top: 50%;
+  width: min(47vw, 44rem);
+  transform: translateY(-46%);
+}
+.hero-inside {
+  position: absolute;
+  left: clamp(1.25rem, 6vw, 6.5rem);
+  bottom: clamp(1.5rem, 7vh, 4.5rem);
+  max-width: 30rem;
+  border-radius: 20px;
+  background: rgb(33 23 47 / 0.82);
+  padding: 1.25rem 1.5rem;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+}
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgb(247 243 236 / 0.7);
+}
+.scroll-cue i {
+  display: block;
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(var(--lamp), transparent);
+  animation: cue 2.2s ease-in-out infinite;
+  transform-origin: top;
+}
+@keyframes cue {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+@media (max-width: 860px) {
+  .door-hero {
+    height: 250vh;
+  }
+  /* Recomposed for a tall screen: copy on top, the door standing on the floor below it. */
+  .door-stage {
+    --pw: min(34vw, 19vh);
+    --px: calc(50vw - var(--pw) / 2);
+    --py: calc(100vh - var(--ph) - 9vh);
+  }
+  .hero-copy {
+    top: clamp(5.25rem, 12vh, 7.5rem);
+    left: 1.25rem;
+    right: 1.25rem;
+    width: auto;
+    transform: none;
+  }
+  .hero-copy .lede {
+    margin-top: 1rem;
+  }
+  .hero-copy .hero-more,
+  .hero-copy .btn-ghost,
+  .door-sconce,
+  .scroll-cue {
+    display: none;
+  }
+  .hero-inside {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+/* No scroll choreography: a still of the open doorway. */
+@media (prefers-reduced-motion: reduce) {
+  .door-hero {
+    height: auto;
+  }
+  .door-stage {
+    position: relative;
+    --door: 100deg;
+    --glow: 0.15;
+    --life: 1;
+    --ox: 19vw; /* brings the lamp-lit desks into the doorway */
+    --oy: 5vh;
+  }
+  .scroll-cue {
+    display: none;
+  }
+}
+
+/* Hero walkers: position and facing run as two animations so the row changes in one step. */
+.walker-a {
+  animation: walk-a-pos 18s linear infinite, walk-a-row 18s step-end infinite;
+}
+@keyframes walk-a-pos {
+  0%, 4% { top: 47%; }
+  46%, 54% { top: 86%; }
+  96%, 100% { top: 47%; }
+}
+@keyframes walk-a-row {
+  0% { --row: 0; }
+  4% { --row: 4; }
+  46% { --row: 0; }
+  54% { --row: 7; }
+  96% { --row: 0; }
+}
+.walker-b {
+  animation: walk-b-pos 22s linear infinite, walk-b-row 22s step-end infinite;
+}
+@keyframes walk-b-pos {
+  0%, 6% { left: 59%; }
+  44%, 56% { left: 39%; }
+  94%, 100% { left: 59%; }
+}
+@keyframes walk-b-row {
+  0% { --row: 0; }
+  6% { --row: 5; }
+  44% { --row: 0; }
+  56% { --row: 6; }
+  94% { --row: 0; }
+}
+
+/* Skip link: visible only on keyboard focus. */
+.site-skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 60;
+  border-radius: 999px;
+  background: var(--lamp);
+  padding: 0.6rem 1.1rem;
+  color: #2a1c0a;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+.site-skip:focus-visible {
+  top: 4.75rem;
+}
+
+/* =====================================================================
+   03  The living world (playable office)
+   ===================================================================== */
+.mini-stage {
+  height: clamp(440px, 68vh, 720px);
+  box-shadow: 0 40px 120px -40px rgb(0 0 0 / 0.8), 0 0 140px -50px rgb(244 195 107 / 0.35);
+}
+.mini-stage canvas {
+  cursor: pointer;
+}
+@media (max-width: 640px) {
+  .mini-stage {
+    height: min(76vh, 560px);
+    border-radius: 22px;
+  }
+}
+.mini-lantern {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--aubergine);
+}
+.mini-lantern span {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--lamp);
+  box-shadow: 0 0 0 4px rgb(244 195 107 / 0.28), 0 0 16px 4px rgb(244 195 107 / 0.55);
+}
+.mini-lantern[data-door="ask"] span {
+  background: linear-gradient(90deg, var(--lamp) 50%, transparent 50%);
+  box-shadow: inset 0 0 0 1.5px var(--lamp);
+}
+.mini-lantern[data-door="closed"] span {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px #9a90b8;
+}
+.mini-lantern[data-door="closed"] span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 15px;
+  height: 1.5px;
+  background: #9a90b8;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* =====================================================================
+   Scripted pixel scenes (knock, desk drops, clocks)
+   ===================================================================== */
+.scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  container-type: inline-size;
+  box-shadow: 0 30px 80px -40px rgb(33 23 47 / 0.55);
+}
+.scene-chip {
+  position: absolute;
+  z-index: 4;
+  transform: translate(-50%, -100%);
+  max-width: 62cqw;
+  border-radius: 1.1em;
+  background: var(--ivory);
+  padding: 0.42em 0.85em;
+  color: var(--night);
+  font-size: clamp(10px, 3.1cqw, 16px);
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px -6px rgb(33 23 47 / 0.6);
+  opacity: 0;
+  visibility: hidden;
+}
+.scene-chip b {
+  display: inline-block;
+  margin-left: 0.5em;
+  border-radius: 999px;
+  background: var(--lamp);
+  padding: 0.12em 0.7em;
+  color: #2a1c0a;
+}
+.scene-chip-lamp {
+  background: var(--lamp);
+  color: #2a1c0a;
+}
+.scene-chip-you {
+  background: var(--purple);
+  color: #fff;
+}
+.scene-chip-note {
+  border-radius: 0.3em;
+  background: #f6cf82;
+  color: #3a2a0c;
+  font-weight: 500;
+  transform: translate(-50%, -100%) rotate(-2deg);
+}
+.scene-ring {
+  position: absolute;
+  z-index: 3;
+  width: 4%;
+  aspect-ratio: 1;
+  margin: -2% 0 0 -2%;
+  border: 2px solid var(--lamp);
+  border-radius: 50%;
+  opacity: 0;
+}
+.scene-note {
+  position: absolute;
+  z-index: 3;
+  width: 1.15%;
+  aspect-ratio: 1;
+  margin: -0.6% 0 0 -0.6%;
+  background: linear-gradient(135deg, var(--lamp) 68%, #c9913a 68%);
+  box-shadow: 1px 2px 0 rgb(33 23 47 / 0.4);
+  opacity: 0;
+}
+.scene-glow {
+  position: absolute;
+  z-index: 1;
+  width: 16%;
+  aspect-ratio: 1;
+  margin: -8% 0 0 -8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(244 195 107 / 0.75), rgb(244 195 107 / 0) 68%);
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+.scene-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #0c0830;
+  opacity: 0;
+  pointer-events: none;
+}
+.scene-sky-morning {
+  background: linear-gradient(200deg, rgb(255 214 150 / 0.4), rgb(255 214 150 / 0) 70%);
+  mix-blend-mode: screen;
+}
+.scene-clock {
+  position: absolute;
+  left: 4cqw;
+  top: 4cqw;
+  z-index: 5;
+  border-radius: 8px;
+  background: rgb(33 23 47 / 0.85);
+  padding: 8px 10px;
+  color: var(--lamp);
+  font-size: clamp(7px, 1.9cqw, 10px);
+}
+/* Reduced motion: each scene rests on its last frame. */
+.scene[data-static] .k-yes,
+.scene[data-static] .d-card,
+.scene[data-static] .d-reply {
+  opacity: 1;
+  visibility: visible;
+}
+.scene[data-static] .d-sender {
+  display: none;
+}
+.clock-room .scene {
+  box-shadow: none;
+}
+.clock-room li + li {
+  box-shadow: -1px 0 0 rgb(247 243 236 / 0.08);
+}
+
+/* =====================================================================
+   02  Working apart (flat editorial illustrations)
+   ===================================================================== */
+.apart-art {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+}
+.apart-tick {
+  font: 600 11px var(--font-dm-sans), sans-serif;
+  fill: var(--evening);
+  letter-spacing: 0.04em;
+}
+.apart-name {
+  font: 600 14px var(--font-dm-sans), sans-serif;
+  fill: var(--night);
+}
+.apart-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+.reveal[data-shown] .apart-pop {
+  animation: apart-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+@keyframes apart-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.apart-blink {
+  animation: apart-blink 2.6s ease-in-out infinite;
+}
+@keyframes apart-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.apart-typed {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 0;
+}
+.reveal[data-shown] .apart-typed {
+  animation: apart-type 7s steps(38) infinite;
+}
+@keyframes apart-type {
+  0% {
+    max-width: 0;
+  }
+  45%,
+  62% {
+    max-width: 38ch;
+  }
+  80%,
+  100% {
+    max-width: 0;
+  }
+}
+.apart-caret {
+  width: 2px;
+  height: 1.3em;
+  margin-left: 2px;
+  background: var(--purple);
+  animation: apart-blink 1s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .apart-pop {
+    opacity: 1;
+  }
+  .apart-typed {
+    max-width: none;
+  }
+}
+
+/* =====================================================================
+   07  Personal spaces
+   ===================================================================== */
+.avatar-badge {
+  display: flex;
+  width: 230px;
+  height: 290px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28px;
+  background: radial-gradient(circle at 50% 62%, #fff3d6 0%, var(--mist) 62%);
+  box-shadow: inset 0 0 0 1px rgb(41 38 48 / 0.1), 0 30px 60px -34px rgb(33 23 47 / 0.5);
+}
+
+/* =====================================================================
+   09  Final invitation: the open door
+   ===================================================================== */
+.invite::before {
+  content: "";
+  position: absolute;
+  right: -10%;
+  top: 10%;
+  width: 70%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgb(244 195 107 / 0.2), rgb(244 195 107 / 0) 62%);
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  opacity: 0.8;
+}
+.invite:has(.invite-cta:hover)::before,
+.invite:has(.invite-cta:focus-visible)::before {
+  opacity: 1.6;
+}
+.invite-door {
+  --w: min(300px, 62vw);
+  position: relative;
+  width: var(--w);
+  aspect-ratio: 170 / 326;
+  perspective: calc(var(--w) * 3.2);
+  perspective-origin: 70% 50%;
+  box-shadow:
+    0 0 0 calc(var(--w) * 0.035) #3a2c57,
+    0 0 0 calc(var(--w) * 0.05) #171022,
+    0 0 calc(var(--w) * 0.9) calc(var(--w) * 0.08) rgb(244 195 107 / 0.3);
+}
+.invite-view {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.invite-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: rotateY(102deg);
+  background: linear-gradient(100deg, #5a50b4 0%, #6c63c7 55%, #8179d8 100%);
+}
+.invite-spill {
+  position: absolute;
+  left: -70%;
+  top: 100%;
+  width: 240%;
+  height: 34%;
+  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+  background: linear-gradient(rgb(244 195 107 / 0.6), rgb(244 195 107 / 0) 90%);
+}
+
+/* =====================================================================
+   10  Footer walker
+   ===================================================================== */
+.footer-walk {
+  position: relative;
+  height: 0;
+  margin: 0 auto;
+  width: min(1320px, 100% - 2.5rem);
+}
+.walker-foot {
+  top: 2px !important;
+  width: 48px;
+  animation: foot-pos 34s linear infinite, foot-row 34s step-end infinite;
+}
+@keyframes foot-pos {
+  0% { left: 2%; }
+  48%, 52% { left: 98%; }
+  100% { left: 2%; }
+}
+@keyframes foot-row {
+  0% { --row: 6; }
+  48% { --row: 0; }
+  52% { --row: 5; }
+}
