@@ -7,7 +7,7 @@
     "start": "node dist/main.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/auth/tokens.test.ts src/auth/magic-link-message.test.ts src/auth/oauth-flow.test.ts src/auth/passwords.test.ts src/auth/password-confirm.test.ts src/account/account-input.test.ts src/account/membership-rules.test.ts src/account/invite-message.test.ts src/account/membership.test.ts src/account/rls.test.ts",
+    "test": "node --import tsx --test src/auth/tokens.test.ts src/auth/magic-link-message.test.ts src/auth/oauth-flow.test.ts src/auth/passwords.test.ts src/auth/password-confirm.test.ts src/account/account-input.test.ts src/account/membership-rules.test.ts src/account/invite-message.test.ts src/account/membership.test.ts src/account/rls.test.ts src/floor/floor-session.test.ts",
     "migrate": "tsx src/database/migrate.ts"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "@nestjs/platform-express": "^11.1.6",
     "nodemailer": "^10.5.0",
     "pg": "^8.16.3",
+    "redis": "^4.7.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
