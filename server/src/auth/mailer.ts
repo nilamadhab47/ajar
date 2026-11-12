@@ -18,7 +18,7 @@ export async function sendPreparedMessage(
 
   if (apiKey) {
     await sendWithResend(apiKey, from, email, message);
-    logger.log("Magic link accepted by Resend");
+    logger.log("Mail accepted by Resend");
     return;
   }
 
@@ -68,6 +68,6 @@ async function sendWithResend(
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
-    throw new Error(`Resend rejected the sign-in email (${response.status})`);
+    throw new Error(`Resend rejected the email (${response.status})`);
   }
 }

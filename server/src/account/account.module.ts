@@ -3,11 +3,13 @@ import { AuthModule } from "../auth/auth.module";
 import { DatabaseModule } from "../database/database.module";
 import { AccountController } from "./account.controller";
 import { AccountService } from "./account.service";
+import { MembershipController } from "./membership.controller";
+import { MembershipService } from "./membership.service";
 
-/** Companies, offices, and the signed-in person. */
+/** Companies, offices, the signed-in person, and who belongs in an office. */
 @Module({
   imports: [DatabaseModule, AuthModule],
-  controllers: [AccountController],
-  providers: [AccountService],
+  controllers: [AccountController, MembershipController],
+  providers: [AccountService, MembershipService],
 })
 export class AccountModule {}
