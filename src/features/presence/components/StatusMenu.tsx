@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { StatusDot } from "@/components/common/StatusIndicator";
 import { MenuItem, MenuLabel, MenuSeparator } from "@/components/ui/menu";
 import { cn } from "@/lib/utils";
-import { Lantern } from "@/features/knock/Lantern";
+import { Lantern } from "@/features/knock/components/Lantern";
 import { DOOR_META, STATUS_META, STATUS_ORDER, effectiveDoor, type DoorState } from "@/types/domain";
 import { useProfileStore } from "../presence-store";
 

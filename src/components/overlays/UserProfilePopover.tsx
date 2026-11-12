@@ -8,7 +8,7 @@ import { Button, IconButton } from "@/components/ui/button";
 import { currentUserId } from "@/features/people/people-store";
 import { useChatStore } from "@/features/chat/chat-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
-import { Lantern } from "@/features/knock/Lantern";
+import { Lantern } from "@/features/knock/components/Lantern";
 import { useKnockStore } from "@/features/knock/knock-store";
 import { deskOwner, useDeskStore } from "@/features/desk/desk-store";
 import { usePeopleStore, useUser } from "@/features/people/people-store";

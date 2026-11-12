@@ -6,7 +6,7 @@ import { MeetingView } from "@/features/meetings/components/MeetingView";
 import { RoomDialog } from "@/features/meetings/components/RoomDialog";
 import { HelpDialog, LeaveDialog, SettingsDialog } from "@/features/settings/components/SettingsDialogs";
 import { WhiteboardDialog } from "@/features/whiteboard/components/WhiteboardDialog";
-import { NoteDialog } from "@/features/knock/NoteDialog";
+import { NoteDialog } from "@/features/knock/components/NoteDialog";
 import { FloorSelector } from "@/features/world/components/FloorSelector";
 import { useUiStore } from "@/stores/ui-store";
 
