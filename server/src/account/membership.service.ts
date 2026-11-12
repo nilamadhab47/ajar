@@ -46,7 +46,7 @@ export class MembershipService {
     role: OfficeRole,
   ): Promise<CreatedInvite> {
     const token = randomToken();
-    const created = await this.database.transaction(async (query) => {
+    const created = await this.database.asOffice(actorId, workspaceId, async (query) => {
       const actor = await this.actor(query, workspaceId, actorId);
       if (!canInvite(actor.role, role)) throw new ForbiddenException({ ok: false });
       await query(
@@ -84,7 +84,7 @@ export class MembershipService {
 
   /** Accepts an invite when the signed-in person's email matches. */
   async acceptInvite(userId: string, token: string): Promise<{ officeId: string; role: OfficeRole }> {
-    return this.database.transaction(async (query) => {
+    return this.database.asOffice(userId, null, async (query) => {
       const invite = await query<{
         id: string;
         workspace_id: string;
@@ -108,6 +108,7 @@ export class MembershipService {
       if (!email || email.toLowerCase() !== row.email.toLowerCase()) {
         throw new ForbiddenException({ ok: false });
       }
+      await query("select set_config('app.workspace_id', $1, true)", [row.workspace_id]);
       const existing = await query(
         "select 1 from workspace_members where workspace_id = $1 and user_id = $2",
         [row.workspace_id, userId],
@@ -127,14 +128,31 @@ export class MembershipService {
     });
   }
 
+  /** Lists open invitations. Guests cannot use this member route. */
+  async listInvites(actorId: string, workspaceId: string) {
+    return this.database.asOffice(actorId, workspaceId, async (query) => {
+      const actor = await this.actor(query, workspaceId, actorId);
+      if (actor.role === "guest") throw new ForbiddenException({ ok: false });
+      const rows = await query<{ id: string; email: string; role: OfficeRole }>(
+        `select id, email, role
+         from invites
+         where workspace_id = $1 and accepted_at is null and expires_at > now()
+         order by created_at`,
+        [workspaceId],
+      );
+      return rows.rows.map((row) => ({ id: row.id, email: row.email, role: row.role }));
+    });
+  }
+
   /** Lists the people in an office for someone who already belongs there. */
   async listMembers(actorId: string, workspaceId: string) {
-    const actor = await this.database.query(
+    return this.database.asOffice(actorId, workspaceId, async (query) => {
+    const actor = await query(
       "select 1 from workspace_members where workspace_id = $1 and user_id = $2",
       [workspaceId, actorId],
     );
     if (!actor.rowCount) throw new NotFoundException({ ok: false });
-    const rows = await this.database.query<{
+    const rows = await query<{
       id: string;
       email: string;
       display_name: string;
@@ -153,11 +171,12 @@ export class MembershipService {
       displayName: row.display_name,
       role: row.role,
     }));
+    });
   }
 
   /** Changes a member's role. The last owner cannot be demoted. */
   async changeRole(actorId: string, workspaceId: string, targetUserId: string, role: OfficeRole) {
-    return this.database.transaction(async (query) => {
+    return this.database.asOffice(actorId, workspaceId, async (query) => {
       const actor = await this.actor(query, workspaceId, actorId);
       const target = await this.lockedMember(query, workspaceId, targetUserId);
       if (target.role === role) return { userId: targetUserId, role };
@@ -177,7 +196,7 @@ export class MembershipService {
 
   /** Removes a member. The last owner cannot be removed. */
   async removeMember(actorId: string, workspaceId: string, targetUserId: string): Promise<void> {
-    await this.database.transaction(async (query) => {
+    await this.database.asOffice(actorId, workspaceId, async (query) => {
       const actor = await this.actor(query, workspaceId, actorId);
       const target = await this.lockedMember(query, workspaceId, targetUserId);
       if (!canRemove(actor.role, target.role, actorId === targetUserId)) {

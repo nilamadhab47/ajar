@@ -50,6 +50,14 @@ export class MembershipController {
     return this.membership.acceptInvite(person.id, token);
   }
 
+  /** Lists open invitations. A guest cannot call this member route. */
+  @Get("workspaces/:workspaceId/invites")
+  async invites(@Req() request: Request, @Param("workspaceId") workspaceId: string) {
+    const person = await this.current.require(request);
+    if (!isUuid(workspaceId)) throw new BadRequestException({ ok: false });
+    return { invites: await this.membership.listInvites(person.id, workspaceId) };
+  }
+
   /** Lists the people in an office the caller belongs to. */
   @Get("workspaces/:workspaceId/members")
   async members(@Req() request: Request, @Param("workspaceId") workspaceId: string) {
