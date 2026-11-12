@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
 import { useWorldStore } from "@/features/world/world-store";
 import type { User } from "@/types/domain";
 import { useLocalUser, usePeopleStore } from "./people-store";
@@ -10,7 +9,7 @@ import { useLocalUser, usePeopleStore } from "./people-store";
 export function useAllUsers(): Record<string, User> {
   const me = useLocalUser();
   const users = usePeopleStore((s) => s.users);
-  return useMemo(() => ({ ...users, [LOCAL_USER_ID]: me }), [users, me]);
+  return useMemo(() => ({ ...users, [me.id]: me }), [users, me]);
 }
 
 /** Human-readable location of a user ("Atlas Room"), or null when unknown. */

@@ -3,7 +3,7 @@
 import { ChevronDown, Layers, Map as MapIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Tooltip } from "@/components/ui/tooltip";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { usePeopleStore } from "@/features/people/people-store";
 import { useProfileStore } from "@/features/presence/presence-store";
 import { useAppStore } from "@/stores/app-store";
@@ -63,7 +63,7 @@ export function Minimap() {
       const { users } = usePeopleStore.getState();
       const nearby = new Set(useWorldStore.getState().nearby.map((n) => n.userId));
       for (const [id, p] of worldRuntime.positions) {
-        if (id === LOCAL_USER_ID) continue;
+        if (id === currentUserId()) continue;
         ctx.fillStyle = STATUS_META[users[id]?.status ?? "available"].color;
         ctx.beginPath();
         ctx.arc(p.x * k, p.y * k, nearby.has(id) ? 3.2 : 2.2, 0, Math.PI * 2);
@@ -79,7 +79,7 @@ export function Minimap() {
       ctx.strokeStyle = "rgba(40,42,48,0.8)";
       ctx.lineWidth = 1;
       ctx.strokeRect(Math.max(0, v.x * k) + 0.5, Math.max(0, v.y * k) + 0.5, Math.min(WIDTH, v.width * k) - 1, Math.min(height, v.height * k) - 1);
-      const me = worldRuntime.positions.get(LOCAL_USER_ID);
+      const me = worldRuntime.positions.get(currentUserId());
       if (me) {
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();

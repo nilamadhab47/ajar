@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { useProfileStore } from "@/features/presence/presence-store";
 import { BRAND } from "@/lib/config";
-import { usersApi } from "@/services/api/users-api";
 import { useUiStore } from "@/stores/ui-store";
 import { useAvatarStore } from "../avatar-store";
 import { AvatarEditor } from "./AvatarEditor";
@@ -54,7 +53,6 @@ export function OnboardingDialog() {
   const submit = form.handleSubmit((values) => {
     useAvatarStore.getState().setAppearance(draft);
     useProfileStore.getState().setProfile({ ...values, onboarded: true });
-    void usersApi.updateProfile({ displayName: values.displayName });
     const ui = useUiStore.getState();
     ui.closeDialog();
     ui.toast({ title: `Welcome, ${values.displayName}!`, body: "Walk with W A S D or the arrow keys. Press E near things to use them.", tone: "success" });
@@ -77,7 +75,6 @@ export function ProfileDialog() {
   const close = () => useUiStore.getState().closeDialog();
   const submit = form.handleSubmit((values) => {
     useProfileStore.getState().setProfile(values);
-    void usersApi.updateProfile({ displayName: values.displayName });
     close();
   });
   return (

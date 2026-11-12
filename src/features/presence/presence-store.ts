@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { migrateLegacyStorage } from "@/lib/storage";
+import { usersApi } from "@/services/api/users-api";
 import type { DoorState, PresenceStatus } from "@/types/domain";
 
 migrateLegacyStorage();
@@ -28,9 +29,18 @@ export const useProfileStore = create<ProfileState>()(
       statusEmoji: "",
       door: "ask",
       onboarded: false,
-      setProfile: (patch) => set(patch),
-      setStatus: (status, statusEmoji) => set((s) => ({ status, statusEmoji: statusEmoji ?? s.statusEmoji })),
-      setDoor: (door) => set({ door }),
+      setProfile: (patch) => {
+        set(patch);
+        if (patch.displayName) void usersApi.updateProfile({ displayName: patch.displayName });
+      },
+      setStatus: (status, statusEmoji) => {
+        set((s) => ({ status, statusEmoji: statusEmoji ?? s.statusEmoji }));
+        void usersApi.updateProfile({ status });
+      },
+      setDoor: (door) => {
+        set({ door });
+        void usersApi.updateProfile({ door });
+      },
     }),
     { name: "ajar.profile", version: 1 },
   ),

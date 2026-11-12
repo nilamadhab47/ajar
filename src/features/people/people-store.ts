@@ -18,6 +18,11 @@ interface PeopleState {
   setLocations: (locations: Record<string, string | null>) => void;
 }
 
+/** The signed-in person, or the demo id when no API is configured. */
+export function currentUserId(): string {
+  return usePeopleStore.getState().localUserId;
+}
+
 export const usePeopleStore = create<PeopleState>((set) => ({
   localUserId: LOCAL_USER_ID,
   users: {},
@@ -49,7 +54,7 @@ export function getLocalUser(): User {
   const profile = useProfileStore.getState();
   const { appearance } = useAvatarStore.getState();
   return {
-    id: LOCAL_USER_ID,
+    id: currentUserId(),
     displayName: profile.displayName,
     title: profile.title,
     status: profile.status,
@@ -60,17 +65,18 @@ export function getLocalUser(): User {
 
 /** React hook: the local user, re-rendering when profile or avatar changes. */
 export function useLocalUser(): User {
+  const id = usePeopleStore((s) => s.localUserId);
   const displayName = useProfileStore((s) => s.displayName);
   const title = useProfileStore((s) => s.title);
   const status = useProfileStore((s) => s.status);
   const door = useProfileStore((s) => s.door);
   const appearance = useAvatarStore((s) => s.appearance);
-  return { id: LOCAL_USER_ID, displayName, title, status, door, avatar: { ...appearance, id: "avatar-local", animationState: "idle", direction: "down" } };
+  return { id, displayName, title, status, door, avatar: { ...appearance, id: "avatar-local", animationState: "idle", direction: "down" } };
 }
 
 export function useUser(id: string | null | undefined): User | null {
   const local = useLocalUser();
   const remote = usePeopleStore((s) => (id ? s.users[id] : undefined));
   if (!id) return null;
-  return id === LOCAL_USER_ID ? local : (remote ?? null);
+  return id === local.id ? local : (remote ?? null);
 }

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { getRealtime } from "@/services/realtime/realtime-client";
 import { useUiStore } from "@/stores/ui-store";
 import { uid } from "@/lib/utils";
@@ -36,7 +36,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   send: (text, options = {}) => {
     const channelId = options.channelId ?? get().activeChannelId;
     const message: ChatMessage = {
-      id: uid("m"), channelId, senderId: LOCAL_USER_ID, message: text.trim(), timestamp: Date.now(), reactions: [],
+      id: uid("m"), channelId, senderId: currentUserId(), message: text.trim(), timestamp: Date.now(), reactions: [],
       attachments: options.attachments?.length ? options.attachments : undefined, threadParentId: options.threadParentId,
     };
     if (!message.message && !message.attachments) return;
@@ -60,8 +60,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
         [channelId]: (s.messages[channelId] ?? []).map((m) => {
           if (m.id !== messageId) return m;
           const existing = m.reactions.find((r) => r.emoji === emoji);
-          if (!existing) return { ...m, reactions: [...m.reactions, { emoji, userIds: [LOCAL_USER_ID] }] };
-          const userIds = existing.userIds.includes(LOCAL_USER_ID) ? existing.userIds.filter((u) => u !== LOCAL_USER_ID) : [...existing.userIds, LOCAL_USER_ID];
+          if (!existing) return { ...m, reactions: [...m.reactions, { emoji, userIds: [currentUserId()] }] };
+          const userIds = existing.userIds.includes(currentUserId()) ? existing.userIds.filter((u) => u !== currentUserId()) : [...existing.userIds, currentUserId()];
           return { ...m, reactions: m.reactions.map((r) => (r === existing ? { ...r, userIds } : r)).filter((r) => r.userIds.length) };
         }),
       },
@@ -69,7 +69,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   openDirectMessage: (userId, displayName) => {
     const id = `dm-${userId}`;
     set((s) => ({
-      channels: s.channels.some((c) => c.id === id) ? s.channels : [...s.channels, { id, kind: "dm", name: displayName, memberIds: [LOCAL_USER_ID, userId] }],
+      channels: s.channels.some((c) => c.id === id) ? s.channels : [...s.channels, { id, kind: "dm", name: displayName, memberIds: [currentUserId(), userId] }],
       activeChannelId: id,
       threadParentId: null,
       unread: { ...s.unread, [id]: 0 },

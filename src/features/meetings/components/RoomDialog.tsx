@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/common/LoadingState";
 import { DemoTag } from "@/components/common/StatusIndicator";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { useAllUsers } from "@/features/people/use-people";
 import { sendWorldCommand } from "@/features/world/world-bridge";
@@ -28,7 +28,7 @@ export function RoomDialog({ roomId }: { roomId: string }) {
   if (!room) return null;
 
   const present = (occupants ?? []).filter((id) => users[id]);
-  const others = present.filter((id) => id !== LOCAL_USER_ID);
+  const others = present.filter((id) => id !== currentUserId());
   const full = room.capacity !== null && present.length >= room.capacity && !inside;
 
   return (
@@ -49,7 +49,7 @@ export function RoomDialog({ roomId }: { roomId: string }) {
               {present.map((id) => (
                 <li key={id} className="flex items-center gap-2 rounded-md bg-app px-2 py-1.5">
                   <AvatarImage avatar={users[id].avatar} size={24} />
-                  <span className="min-w-0 flex-1 truncate text-[13px]">{id === LOCAL_USER_ID ? "You" : users[id].displayName}</span>
+                  <span className="min-w-0 flex-1 truncate text-[13px]">{id === currentUserId() ? "You" : users[id].displayName}</span>
                   {users[id].isDemo && <DemoTag />}
                 </li>
               ))}

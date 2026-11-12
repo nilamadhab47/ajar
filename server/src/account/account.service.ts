@@ -108,7 +108,7 @@ export class AccountService {
   /** Updates the profile fields the office client can change. */
   async updatePerson(
     userId: string,
-    patch: { displayName?: string; status?: string; avatar?: Record<string, unknown> },
+    patch: { displayName?: string; status?: string; avatar?: Record<string, unknown>; door?: string },
   ) {
     const updated = await this.database.asOffice(userId, null, (query) =>
       query<PersonRow>(
@@ -116,6 +116,7 @@ export class AccountService {
        set display_name = coalesce($2, display_name),
            status = coalesce($3, status),
            avatar = coalesce($4::jsonb, avatar),
+           door = coalesce($5, door),
            updated_at = now()
        where id = $1
        returning id, email, display_name, title, avatar, status, door`,
@@ -124,6 +125,7 @@ export class AccountService {
         patch.displayName ?? null,
         patch.status ?? null,
         patch.avatar ? JSON.stringify(patch.avatar) : null,
+        patch.door ?? null,
       ],
       ),
     );

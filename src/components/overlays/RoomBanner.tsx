@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Lock, MapPin, VolumeX } from "lucide-react";
 import { AvatarImage } from "@/components/common/AvatarImage";
 import { Button } from "@/components/ui/button";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { useAllUsers } from "@/features/people/use-people";
 import { useWorldStore } from "@/features/world/world-store";
@@ -16,7 +16,7 @@ export function RoomBanner() {
   const occupants = useWorldStore((s) => (s.currentRoomId ? s.roomOccupants[s.currentRoomId] : undefined));
   const conversation = useConversationStore((s) => s.active);
   const users = useAllUsers();
-  const others = (occupants ?? []).filter((id) => id !== LOCAL_USER_ID && users[id]);
+  const others = (occupants ?? []).filter((id) => id !== currentUserId() && users[id]);
   const inRoomConversation = conversation?.scope.type === "room" && conversation.scope.roomId === room?.id;
 
   return (

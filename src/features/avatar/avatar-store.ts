@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { migrateLegacyStorage } from "@/lib/storage";
+import { usersApi } from "@/services/api/users-api";
 import { DEFAULT_APPEARANCE } from "./data/avatar-options";
 
 migrateLegacyStorage();
@@ -19,7 +20,12 @@ export const useAvatarStore = create<AvatarState>()(
     (set) => ({
       appearance: DEFAULT_APPEARANCE,
       customised: false,
-      setAppearance: (appearance) => set({ appearance, customised: true }),
+      setAppearance: (appearance) => {
+        set({ appearance, customised: true });
+        void usersApi.updateProfile({
+          avatar: { ...appearance, id: "avatar-local", animationState: "idle", direction: "down" },
+        });
+      },
       reset: () => set({ appearance: DEFAULT_APPEARANCE }),
     }),
     { name: "ajar.avatar", version: 1 },

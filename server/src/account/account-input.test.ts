@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { avatarPatch, officeName, presenceStatus } from "./account-input";
+import { avatarPatch, doorState, officeName, presenceStatus } from "./account-input";
 
 test("a company name is trimmed and cannot be empty", () => {
   assert.equal(officeName("  Marigold Studio  "), "Marigold Studio");
@@ -10,6 +10,8 @@ test("a company name is trimmed and cannot be empty", () => {
 
 test("profile patches accept the office statuses and an avatar object", () => {
   assert.equal(presenceStatus("focus"), "focus");
+  assert.equal(doorState("ask"), "ask");
+  assert.equal(doorState("ajar"), null);
   assert.equal(presenceStatus("asleep"), null);
   assert.deepEqual(avatarPatch({ id: "a" }), { id: "a" });
   assert.equal(avatarPatch(["nope"]), null);
