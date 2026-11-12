@@ -77,7 +77,7 @@ Shortcuts are rebindable in Settings and pause while you type or a dialog has th
 
 ## What you can walk through
 
-One furnished floor, 64 × 40 tiles: an open workspace with 12 desks, Atlas and Birch, a kitchen, a library, a lounge, a quiet zone, reception, a studio, and a garden. Floors 2–5 are walkable placeholders, reached by elevator, stairs, or the mini-map.
+One furnished floor, 64 × 40 tiles: an open workspace with 12 desks, Atlas and Birch, a kitchen, a library, a lounge, a quiet zone, reception, a dev lounge, and a garden. Floors 2–5 are walkable placeholders, reached by elevator, stairs, or the mini-map.
 
 Characters are layered: skin, hair, face, clothes, glasses, hats, and small accessories. They idle, walk, sit, wave, dance, clap, and celebrate. Nameplates show status and the lantern.
 

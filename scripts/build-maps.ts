@@ -208,12 +208,12 @@ function mainOffice() {
   m.room("reception", "Reception", 20, 28, 33, 36, { roomType: "reception", zone: "open", color: "#F1C3B7" });
   m.label("Reception", 28 * 32, 30 * 32);
 
-  // ---- Creative studio
+  // ---- Dev lounge
   m.fill("ground", 35, 29, 46, 36, "concrete");
   m.walls(34, 28, 47, 28);
   m.door(40, 28, "concrete");
   m.door(41, 28, "concrete");
-  m.add("whiteboard", 36, 28, { boardId: "board-studio", title: "Studio wall" });
+  m.add("whiteboard", 36, 28, { boardId: "board-studio", title: "Dev lounge" });
   m.add("frame_c", 44, 28);
   m.add("frame_a", 46, 28);
   m.add("table_meet_s", 39, 32);
@@ -227,8 +227,8 @@ function mainOffice() {
   m.add("plant_tall", 46, 29);
   m.add("bookshelf_low", 44, 36);
   m.add("floor_lamp", 35, 36);
-  m.room("studio", "Creative Studio", 35, 29, 46, 36, { roomType: "studio", zone: "open", color: "#E7E2DB" });
-  m.label("Studio", 41 * 32, 30 * 32);
+  m.room("studio", "Dev Lounge", 35, 29, 46, 36, { roomType: "studio", zone: "open", color: "#E7E2DB" });
+  m.label("Dev Lounge", 39.5 * 32, 30 * 32);
 
   for (let x = 4; x < 46; x++) if (x % 4 === 1 && x !== 25) m.window(x, 37);
 

@@ -64,7 +64,7 @@ LiveKit SFU, S3, AWS (EKS/RDS/ElastiCache).
 - One fully furnished floor (64×40 tiles @ 32px): Open Workspace (12 desks in Product / Engineering / Design
   pods), Atlas Room (meeting, 10 seats, display + whiteboard), Birch Room (meeting, 6 seats), Kitchen (coffee,
   water, fridge, table), Library (shelves, reading tables), Collaboration Lounge (sofas, rug, gong), Quiet Zone
-  (4 focus booths + hot desks), Reception (desk, welcome sign), Creative Studio, outdoor Garden (trees, pond,
+  (4 focus booths + hot desks), Reception (desk, welcome sign), Dev Lounge, outdoor Garden (trees, pond,
   paths, benches). Elevator and stairs.
 - Floors 2–5: walkable placeholder maps, reachable via elevator/stairs/mini-map; fade transition, no page reload.
 - Tiled-compatible JSON maps with tile layers `ground, floor-decor, rugs, walls, foreground` and object layers
