@@ -17,6 +17,7 @@ Read these before making changes:
 - `docs/ARCHITECTURE.md` — frontend internals (Phaser world ↔ React app)
 - `docs/SYSTEM_DESIGN.md` — backend, database and infrastructure design
 - `docs/ROADMAP.md` — prioritised remaining work and differentiators
+- `docs/SITE.md` — the marketing landing page (`src/site`, route `/`): structure, design system, assets, audio
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:1105d646 -->
 ## Beads Issue Tracker

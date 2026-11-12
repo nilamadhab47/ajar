@@ -55,3 +55,6 @@ next-env.d.ts
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# Baked marketing-site art derived from the purchased pack (npm run site-assets). Needed at deploy time.
+/public/assets/imersa

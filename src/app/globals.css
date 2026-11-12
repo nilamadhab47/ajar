@@ -27,6 +27,32 @@ html,
 body {
   height: 100%;
 }
+
+/* ---- Marketing site (src/site). Tokens are inlined so they resolve where the font variables are set. ---- */
+@theme inline {
+  --color-aubergine: #21172f;
+  --color-aubergine-soft: #2e2142;
+  --color-lamp: #f4c36b;
+  --color-ivory: #f7f3ec;
+  --color-mist: #e9e4f5;
+  --color-evening: #777481;
+  --color-night: #292630;
+  --color-softsage: #c7d8c0;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-site: var(--font-dm-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-pixel: var(--font-press), ui-monospace, monospace;
+}
+
+/* The app shell never scrolls the document; the marketing pages do. */
+html:has(.site-root),
+body:has(.site-root) {
+  height: auto;
+  overflow: visible;
+}
+body:has(.site-root) {
+  background: #21172f;
+}
+
 body {
   background: var(--color-app);
   color: var(--color-ink);

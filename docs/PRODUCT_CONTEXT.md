@@ -37,7 +37,9 @@ wide open.
 | Audio/video | Local capture + preview only. No transport. UI labels conversations **Simulated**. Phaser audio is off. |
 | Art | Original, procedurally generated from code (`src/art`). Starter quality, replaceable. |
 
-Run: `npm install && npm run dev` → `http://localhost:3000` → redirects to `/workspace/demo/office`.
+Run: `npm install && npm run dev` → `http://localhost:3000` is the marketing landing page; `/demo` (→
+`/workspace/demo/office`) is the office. The landing page is documented in [SITE.md](SITE.md) and needs
+`npm run site-assets` once (with the purchased pack present) to bake its art.
 
 ## 3. Tech stack
 
@@ -132,7 +134,10 @@ Toggle in Settings: select, drag on grid, remove, add from palette, revert. Publ
 ## 5. Where things live
 
 ```
-src/app/                         routes: / → redirect; /workspace/[workspaceId] (lobby); …/office (the office)
+src/app/                         routes: / (landing page, route group `(site)`); /demo → the office;
+                                 /workspace/[workspaceId] (lobby); …/office (the office)
+src/site/                        the marketing site only: sections, playable mini-office, styles, fonts (see SITE.md).
+                                 It never imports app stores, and the app never imports from it.
 src/components/layout/           AppShell (composition root), TopNavigation, NavigationRail, RightSidebar, BottomToolbar, Lobby
 src/components/overlays/         DialogHost, UserProfilePopover, NearbyPanel, RoomBanner, ConversationOverlay,
                                  InteractionPrompt, NotificationContainer, StatusBadges, LocalMediaTiles
@@ -206,6 +211,7 @@ public/assets, public/maps       GENERATED — do not hand-edit
 | `npm run build && npm start` | Production |
 | `npm run typecheck` / `npm run lint` | Must pass before committing |
 | `npm run assets` / `npm run maps` | Regenerate art / maps |
+| `npm run site-assets` | Bake the landing page's art from the Imersa pack into `public/assets/imersa` (git-ignored) |
 | `npx tsx scripts/preview.ts public/maps/demo-office.json <dir>` | Render a map + avatars to PNG |
 
 Debug in mock mode: `window.__ajar` → `{ worldRuntime, world, ui, send }`. Example:

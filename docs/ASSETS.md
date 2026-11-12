@@ -50,7 +50,7 @@ Runtime dependencies and their licences (from each package's `package.json`):
 Emoji shown in reactions, emotes and status are rendered by the user's system font. The UI uses the system font
 stack; no font files are bundled.
 
-## Purchased pack (not wired in yet)
+## Purchased pack (used by the landing page only)
 
 `Office_Pixel_Art_Premium_v1.0/` is Office Pixel Art Premium v1.0 by Imersa Studios (32×32, top-down 3/4).
 The license allows use inside this app, including edits. It forbids reselling or redistributing the files
@@ -68,3 +68,16 @@ The bitmaps in `public/assets` are still the generated starter art.
 The product name is **Ajar** (`BRAND` in `src/lib/config.ts`). The demo company is still "Marigold Studio"
 (`src/data/demo-workspace.ts`). The in-world welcome sign reads AJAR. Check trademark availability before launch;
 see [BRAND.md](BRAND.md).
+
+## Marketing site
+
+The landing page (see [SITE.md](SITE.md)) uses the Imersa pack, colour-graded at build time by
+`npm run site-assets` into `public/assets/imersa/` (git-ignored, like the pack). The originals are not
+modified. The footer credits "Office Pixel Art by Imersa Studios".
+
+| Thing | Licence |
+|---|---|
+| Fraunces, DM Sans, Press Start 2P (`src/site/fonts/`) | SIL Open Font License 1.1 (texts alongside the files) |
+| GSAP + ScrollTrigger | GSAP standard "no charge" licence (https://gsap.com/standard-license) |
+| Door, sconce, plant, logo mark, editorial illustrations | Original, drawn in code for this project |
+| `public/assets/audio/*.mp3` | Silent placeholders, to be replaced with generated audio |
