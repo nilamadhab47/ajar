@@ -28,8 +28,9 @@ npm run dev                  # http://localhost:3000  →  /workspace/demo/offic
 | `npm run maps` | Regenerates `public/maps/*.json` from `scripts/build-maps.ts` |
 
 `/` is the marketing landing page ([docs/SITE.md](docs/SITE.md)); `/demo` opens the office at `/workspace/demo/office`.
-The landing page's pixel art is baked from the purchased Imersa pack: put `Office_Pixel_Art_Premium_v1.0/` in the
-repository root and run `npm run site-assets` once. `/workspace/demo` is the lobby you land on after "Leave office".
+The landing page's pixel art is baked from the purchased Imersa pack. Put `Office_Pixel_Art_Premium_v1.0/` next to
+this repository, not inside it, and run `npm run site-assets` once. Set `AJAR_ART_PACK` if the pack lives somewhere else.
+`/workspace/demo` is the lobby you land on after "Leave office".
 
 ## The door
 

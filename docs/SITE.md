@@ -24,7 +24,7 @@ src/site/components/          Logo (vector door mark), SiteNav + SoundToggle, Pi
 src/site/sections/            DoorHero, WorkingApart, LivingWorld, Knock, DeskDrops, Clocks, Yours, Invitation (+ footer)
 src/site/game/                MiniOffice.tsx (React host), mini-office.ts (Phaser scene), mini-types.ts (shared, no Phaser)
 src/site/lib/                 analytics.ts, sound.ts, scene.ts (scripted GSAP scenes), hooks.ts
-scripts/build-site-assets.ts  bakes the Imersa pack into public/assets/imersa (npm run site-assets)
+scripts/build-site-assets.ts  bakes the Imersa pack (beside the repository) into public/assets/imersa
 public/assets/audio/          sound files (silent placeholders) + README
 public/og.png                 social preview image
 ```
@@ -67,9 +67,10 @@ lets marketing pages scroll (`body:has(.site-root)`); `src/app/page.tsx` moved i
 | Avatar in "Make it yours" | The app's own compositor (`AvatarPreview`) | Real product code, loaded lazily. |
 
 **The Imersa pack is never modified and never committed.** `npm run site-assets` reads
-`Office_Pixel_Art_Premium_v1.0/` (git-ignored) and writes colour-graded copies to `public/assets/imersa/`
-(also git-ignored). The grade is a split tone (aubergine shadows, warm highlights) plus baked lamp pools; the
-licence allows recolouring. **Those baked files must exist when the site is built for deployment** (see §8).
+`Office_Pixel_Art_Premium_v1.0/` from the folder next to this repository (or from `AJAR_ART_PACK`) and writes
+colour-graded copies to `public/assets/imersa/` (git-ignored). The grade is a split tone (aubergine shadows,
+warm highlights) plus baked lamp pools; the licence allows recolouring. **Those baked files must exist when
+the site is built for deployment** (see §8).
 Characters only have idle and walk animations, so nobody sits: people stand at their desks.
 
 ## 5. Motion storyboard

@@ -42,7 +42,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Purchased art. License allows use inside the app, not redistribution of the pack.
+# Purchased art. The pack lives beside the repository. If a copy is placed here, do not commit it.
 /Office_Pixel_Art_Premium_v1.0
 
 # API service

@@ -39,7 +39,7 @@ wide open.
 
 Run: `npm install && npm run dev` → `http://localhost:3000` is the marketing landing page; `/demo` (→
 `/workspace/demo/office`) is the office. The landing page is documented in [SITE.md](SITE.md) and needs
-`npm run site-assets` once (with the purchased pack present) to bake its art.
+`npm run site-assets` once. The purchased pack sits beside the repository, not inside it.
 
 ## 3. Tech stack
 
@@ -211,7 +211,7 @@ public/assets, public/maps       GENERATED — do not hand-edit
 | `npm run build && npm start` | Production |
 | `npm run typecheck` / `npm run lint` | Must pass before committing |
 | `npm run assets` / `npm run maps` | Regenerate art / maps |
-| `npm run site-assets` | Bake the landing page's art from the Imersa pack into `public/assets/imersa` (git-ignored) |
+| `npm run site-assets` | Bake the landing page's art from the Imersa pack beside the repository into `public/assets/imersa` (git-ignored) |
 | `npx tsx scripts/preview.ts public/maps/demo-office.json <dir>` | Render a map + avatars to PNG |
 
 Debug in mock mode: `window.__ajar` → `{ worldRuntime, world, ui, send }`. Example:
