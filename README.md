@@ -6,7 +6,7 @@ Ajar is a top-down pixel-art office for distributed teams. You can see who is ar
 
 The name means a door left slightly open: approachable, not wide open. Walking near someone makes them knockable. It never opens a microphone. Each person has a **status** (what they are doing) and a **door** (how they want to be approached). The door shows as a lantern: a full lamp is ajar, a half lamp means ask first, an unlit lamp means closed.
 
-This repository is the playable frontend. There is no backend yet. A mock adapter in the browser plays the other people. "Marigold Studio" is the demo company. The office you walk into is named Ajar.
+This repository is the playable frontend. There is no backend yet. A mock adapter in the browser plays the other people. Cruit is the demo company. The office you walk into is named Ajar.
 
 ## Run it
 
@@ -77,7 +77,7 @@ Shortcuts are rebindable in Settings and pause while you type or a dialog has th
 
 ## What you can walk through
 
-One furnished floor, 64 × 40 tiles: an open workspace with 12 desks, Atlas and Birch, a kitchen, a library, a lounge, a quiet zone, reception, a studio, and a garden. Floors 2–5 are walkable placeholders, reached by elevator, stairs, or the mini-map.
+One furnished floor, 64 × 40 tiles: an open workspace with 12 desks, Atlas and Birch, a kitchen, a library, a lounge, a quiet zone, reception, a dev lounge, and a garden. Floors 2–5 are walkable placeholders, reached by elevator, stairs, or the mini-map.
 
 Characters are layered: skin, hair, face, clothes, glasses, hats, and small accessories. They idle, walk, sit, wave, dance, clap, and celebrate. Nameplates show status and the lantern.
 

@@ -130,7 +130,11 @@ export function TopNavigation() {
           </MenuContent>
         </Menu>
       </div>
-      <Logo />
+      {workspace?.logo ? (
+        <img src={workspace.logo} alt="" className="size-7 shrink-0 rounded-md" />
+      ) : (
+        <Logo />
+      )}
       <Menu>
         <MenuTrigger asChild>
           <button className="flex min-w-0 items-center gap-1.5 rounded-md px-1.5 py-1 text-left hover:bg-hover" aria-label="Switch workspace">
