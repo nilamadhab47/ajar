@@ -17,6 +17,9 @@ test("password mail never contains the password", () => {
   assert.match(confirm.text, /works once and expires in 15 minutes/);
   assert.match(confirm.url, /#token=token-value$/);
   assert.equal(confirm.text.includes("correct horse"), false);
+  assert.match(confirm.html, /If you did not ask for an account/);
+  assert.match(confirm.html, /confirms the recipient's account/);
+  assert.equal(confirm.html.includes("did not ask to sign in"), false);
   assert.equal(existing.text.includes("http"), false);
   assert.match(existing.text, /does not change your password/);
 });

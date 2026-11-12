@@ -25,6 +25,14 @@ export function buildPasswordConfirmMessage(origin: string, token: string): Magi
     .replace(
       "This link signs you in once and expires in 15 minutes.",
       "This link confirms your account once and expires in 15 minutes.",
+    )
+    .replace(
+      "If you did not ask to sign in, you can ignore this email. Someone may have typed your address by mistake.",
+      "If you did not ask for an account, you can ignore this email.",
+    )
+    .replace(
+      "Do not forward this email. The link signs the recipient in.",
+      "Do not forward this email. The link confirms the recipient's account.",
     );
   return { subject: "Confirm your Ajar account", text, html, url: link.url };
 }

@@ -17,7 +17,7 @@ function scryptAsync(
   });
 }
 
-let dummyHash: string | undefined;
+let dummyHash: Promise<string> | undefined;
 
 /** Stores a password as scrypt parameters, salt, and hash. The password itself is not kept. */
 export async function hashPassword(password: string): Promise<string> {
@@ -45,10 +45,15 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return timingSafeEqual(derived, expected);
 }
 
-/** A valid hash used when no account exists, so the check takes the same work. */
-export async function dummyPasswordHash(): Promise<string> {
-  dummyHash ??= await hashPassword("not-a-real-password");
+/** Prepares the shared unknown-account hash once. Later callers reuse that promise. */
+export function prepareDummyPasswordHash(): Promise<string> {
+  dummyHash ??= hashPassword("not-a-real-password");
   return dummyHash;
+}
+
+/** A valid hash used when no account exists, so the check takes the same work. */
+export function dummyPasswordHash(): Promise<string> {
+  return prepareDummyPasswordHash();
 }
 
 /** Joins the stored hash parts. */

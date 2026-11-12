@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  OnModuleInit,
   ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -11,7 +12,7 @@ import { ConfigService } from "@nestjs/config";
 import { DatabaseService } from "../database/database.service";
 import { sendMagicLink, sendPreparedMessage } from "./mailer";
 import { buildAccountExistsMessage, buildPasswordConfirmMessage } from "./password-message";
-import { dummyPasswordHash, hashPassword, verifyPassword } from "./passwords";
+import { dummyPasswordHash, hashPassword, prepareDummyPasswordHash, verifyPassword } from "./passwords";
 import { RequestRateLimit } from "./rate-limit";
 import {
   accessTokenTtlSeconds,
@@ -21,7 +22,7 @@ import {
   tokenHash,
 } from "./tokens";
 
-type Grant = {
+export type SessionGrant = {
   accessToken: string;
   expiresIn: number;
   refreshToken: string;
@@ -35,9 +36,9 @@ type SessionRow = {
   revoked_at: Date | null;
 };
 
-/** Magic links and rotating sessions. Office membership is a later issue. */
+/** Magic links, passwords, and rotating sessions. Office membership is a later issue. */
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
   private readonly limits = new RequestRateLimit();
 
@@ -45,6 +46,11 @@ export class AuthService {
     @Inject(DatabaseService) private readonly database: DatabaseService,
     @Inject(ConfigService) private readonly config: ConfigService,
   ) {}
+
+  /** Prepares the unknown-account password check before the first sign-in. */
+  async onModuleInit(): Promise<void> {
+    await prepareDummyPasswordHash();
+  }
 
   /** Stores a hashed 15-minute link and sends it. Every accepted email gets the same result. */
   async requestMagicLink(email: string, clientKey: string): Promise<void> {
@@ -54,6 +60,7 @@ export class AuthService {
     }
 
     const token = randomToken();
+    await this.forgetExpiredLinks();
     await this.database.query(
       `insert into magic_links (email, token_hash, expires_at)
        values ($1, $2, now() + interval '15 minutes')`,
@@ -70,7 +77,7 @@ export class AuthService {
   }
 
   /** Consumes a link once and opens a session for that email. */
-  async consumeMagicLink(token: string, userAgent: string | undefined): Promise<Grant> {
+  async consumeMagicLink(token: string, userAgent: string | undefined): Promise<SessionGrant> {
     const secret = this.jwtSecret();
     return this.database.transaction(async (query) => {
       const link = await query<{ email: string; password_hash: string | null }>(
@@ -95,11 +102,16 @@ export class AuthService {
       const userId = user.rows[0]?.id;
       if (!userId) throw new UnauthorizedException({ ok: false });
       if (link.rows[0]?.password_hash) {
-        await query("update users set password_hash = $2, updated_at = now() where id = $1", [
-          userId,
-          link.rows[0].password_hash,
-        ]);
+        await query(
+          `update users
+           set password_hash = $2, updated_at = now()
+           where id = $1 and password_hash is null`,
+          [userId, link.rows[0].password_hash],
+        );
       }
+      await query("update magic_links set password_hash = null where token_hash = $1", [
+        tokenHash(token),
+      ]);
 
       return this.startSession(query, userId, userAgent, secret);
     });
@@ -126,6 +138,7 @@ export class AuthService {
     }
 
     const token = randomToken();
+    await this.forgetExpiredLinks();
     await this.database.query(
       `insert into magic_links (email, token_hash, expires_at, password_hash)
        values ($1, $2, now() + interval '15 minutes', $3)`,
@@ -141,7 +154,7 @@ export class AuthService {
     password: string,
     clientKey: string,
     userAgent: string | undefined,
-  ): Promise<Grant> {
+  ): Promise<SessionGrant> {
     const normalized = email.trim().toLowerCase();
     if (
       !this.limits.allow(`sign-in-ip:${clientKey}`) ||
@@ -168,7 +181,7 @@ export class AuthService {
   }
 
   /** Rotates the refresh token. A reused token revokes the whole session family. */
-  async refresh(refreshToken: string, userAgent: string | undefined): Promise<Grant> {
+  async refresh(refreshToken: string, userAgent: string | undefined): Promise<SessionGrant> {
     const secret = this.jwtSecret();
     const outcome = await this.database.transaction(async (query) => {
       const found = await query<SessionRow>(
@@ -207,6 +220,17 @@ export class AuthService {
     return outcome.grant;
   }
 
+  /** Opens a new session family for a user who already proved who they are. */
+  async openSession(userId: string, userAgent: string | undefined): Promise<SessionGrant> {
+    const secret = this.jwtSecret();
+    return this.database.transaction(async (query) => {
+      const family = await query<{ id: string }>("select uuidv7() as id");
+      const familyId = family.rows[0]?.id;
+      if (!familyId) throw new UnauthorizedException({ ok: false });
+      return this.insertSession(query, userId, familyId, userAgent, secret);
+    });
+  }
+
   /** Revokes the session that matches the refresh cookie. */
   async logout(refreshToken: string | undefined): Promise<void> {
     if (!refreshToken) return;
@@ -234,11 +258,18 @@ export class AuthService {
     userId: string,
     userAgent: string | undefined,
     secret: string,
-  ): Promise<Grant> {
+  ): Promise<SessionGrant> {
     const family = await query<{ id: string }>("select uuidv7() as id");
     const familyId = family.rows[0]?.id;
     if (!familyId) throw new UnauthorizedException({ ok: false });
     return this.insertSession(query, userId, familyId, userAgent, secret);
+  }
+
+  /** Drops unused links after they expire. There is no separate scheduler yet. */
+  private async forgetExpiredLinks(): Promise<void> {
+    await this.database.query(
+      "delete from magic_links where used_at is null and expires_at <= now()",
+    );
   }
 
   private async sendQuietly(
@@ -258,7 +289,7 @@ export class AuthService {
     familyId: string,
     userAgent: string | undefined,
     secret: string,
-  ): Promise<Grant> {
+  ): Promise<SessionGrant> {
     const refreshToken = randomToken();
     const inserted = await query<{ id: string }>(
       `insert into sessions (user_id, refresh_token_hash, family_id, expires_at, user_agent)
