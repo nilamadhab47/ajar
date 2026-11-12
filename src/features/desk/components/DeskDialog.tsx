@@ -5,7 +5,7 @@ import { AvatarImage } from "@/components/common/AvatarImage";
 import { StatusIndicator } from "@/components/common/StatusIndicator";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useUser } from "@/features/people/people-store";
 import { SpriteThumb } from "@/features/world/components/SpriteThumb";
 import { DESK_DECOR, MAX_DESK_DECOR } from "@/features/world/data/object-catalog";
@@ -28,7 +28,7 @@ export function DeskDialog({ workspaceId, deskId, label, hot }: Props) {
   const myDeskId = useDeskStore((s) => s.myDeskId);
   const decor = useDeskStore((s) => s.decor[deskId]) ?? [];
   const owner = useUser(ownerId);
-  const mine = ownerId === LOCAL_USER_ID;
+  const mine = ownerId === currentUserId();
   const ui = useUiStore.getState;
   const close = () => ui().closeDialog();
 

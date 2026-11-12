@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/common/LoadingState";
 import { SearchInput } from "@/components/common/SearchInput";
 import { DemoTag, StatusDot } from "@/components/common/StatusIndicator";
 import { IconButton } from "@/components/ui/button";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useChatStore } from "@/features/chat/chat-store";
 import { sendWorldCommand } from "@/features/world/world-bridge";
 import { useWorldStore } from "@/features/world/world-store";
@@ -28,7 +28,7 @@ const FILTERS: { id: Filter; label: string; match: (s: PresenceStatus) => boolea
 ];
 
 function PersonRow({ user, location, activity }: { user: User; location: string | null; activity: string | null }) {
-  const isMe = user.id === LOCAL_USER_ID;
+  const isMe = user.id === currentUserId();
   const selected = useUiStore((s) => s.selectedUserId === user.id);
   return (
     <li className={cn("group flex items-center gap-1 rounded-md px-1.5 py-1.5 hover:bg-hover", selected && "bg-accent-soft")}>
@@ -76,7 +76,7 @@ export function PeoplePanel() {
     if (focusToken) searchRef.current?.focus();
   }, [focusToken]);
 
-  const all = useMemo(() => Object.values(users).sort((a, b) => (a.id === LOCAL_USER_ID ? -1 : b.id === LOCAL_USER_ID ? 1 : a.displayName.localeCompare(b.displayName))), [users]);
+  const all = useMemo(() => Object.values(users).sort((a, b) => (a.id === currentUserId() ? -1 : b.id === currentUserId() ? 1 : a.displayName.localeCompare(b.displayName))), [users]);
   const counts = useMemo(() => Object.fromEntries(FILTERS.map((f) => [f.id, all.filter((u) => f.match(u.status)).length])), [all]);
   const q = query.trim().toLowerCase();
   const match = FILTERS.find((f) => f.id === filter)!.match;

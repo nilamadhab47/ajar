@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import type { Request } from "express";
 import { CurrentUserService } from "../auth/current-user";
-import { avatarPatch, officeName, presenceStatus } from "./account-input";
+import { avatarPatch, doorState, officeName, presenceStatus } from "./account-input";
 import { AccountService } from "./account.service";
 
 /** The signed-in person and the offices they belong to. */
@@ -53,10 +53,10 @@ export class AccountController {
   @Patch("users/me")
   async updateMe(
     @Req() request: Request,
-    @Body() body: { displayName?: unknown; status?: unknown; avatar?: unknown },
+    @Body() body: { displayName?: unknown; status?: unknown; avatar?: unknown; door?: unknown },
   ) {
     const person = await this.current.require(request);
-    const patch: { displayName?: string; status?: string; avatar?: Record<string, unknown> } = {};
+    const patch: { displayName?: string; status?: string; avatar?: Record<string, unknown>; door?: string } = {};
     if (body?.displayName !== undefined) {
       const name = officeName(body.displayName);
       if (!name) throw new BadRequestException({ ok: false });
@@ -71,6 +71,11 @@ export class AccountController {
       const avatar = avatarPatch(body.avatar);
       if (!avatar) throw new BadRequestException({ ok: false });
       patch.avatar = avatar;
+    }
+    if (body?.door !== undefined) {
+      const door = doorState(body.door);
+      if (!door) throw new BadRequestException({ ok: false });
+      patch.door = door;
     }
     return this.accounts.updatePerson(person.id, patch);
   }

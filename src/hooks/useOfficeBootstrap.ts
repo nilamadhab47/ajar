@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useAvatarStore } from "@/features/avatar/avatar-store";
 import { useChatStore } from "@/features/chat/chat-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
@@ -69,7 +69,7 @@ export function useOfficeBootstrap(workspaceId: string): void {
       }),
       realtime.on("player:left", ({ playerId }) => usePeopleStore.getState().removeUser(playerId)),
       realtime.on("player:status:updated", (p) => {
-        if (p.playerId !== LOCAL_USER_ID) usePeopleStore.getState().setStatus(p.playerId, p.status, p.activity);
+        if (p.playerId !== currentUserId()) usePeopleStore.getState().setStatus(p.playerId, p.status, p.activity);
       }),
       realtime.on("chat:message", ({ message }) => {
         useChatStore.getState().receive(message);
@@ -82,7 +82,7 @@ export function useOfficeBootstrap(workspaceId: string): void {
         }
       }),
       realtime.on("player:waved", (p) => {
-        if (p.targetId !== LOCAL_USER_ID) return;
+        if (p.targetId !== currentUserId()) return;
         const user = usePeopleStore.getState().users[p.playerId];
         if (!user) return;
         ui().logActivity(`${user.displayName} waved at you`);
@@ -103,11 +103,11 @@ export function useOfficeBootstrap(workspaceId: string): void {
     disposers.push(
       useProfileStore.subscribe((s, prev) => {
         if (s.status !== prev.status || s.statusEmoji !== prev.statusEmoji)
-          realtime.send("player:status:update", { playerId: LOCAL_USER_ID, status: s.status, statusEmoji: s.statusEmoji });
+          realtime.send("player:status:update", { playerId: currentUserId(), status: s.status, statusEmoji: s.statusEmoji });
       }),
       useAvatarStore.subscribe((s, prev) => {
         if (s.appearance !== prev.appearance)
-          realtime.send("player:avatar:update", { playerId: LOCAL_USER_ID, avatar: { ...s.appearance, id: "avatar-local", animationState: "idle", direction: "down" } });
+          realtime.send("player:avatar:update", { playerId: currentUserId(), avatar: { ...s.appearance, id: "avatar-local", animationState: "idle", direction: "down" } });
       }),
       useMediaStore.subscribe((s, prev) => {
         if (s.error && s.error !== prev.error) ui().toast({ title: "Media", body: s.error, tone: "warning" });

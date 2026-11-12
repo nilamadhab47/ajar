@@ -1,7 +1,8 @@
 "use client";
 
 import { Bell, Building2, Check, ChevronDown, CircleHelp, Hash, MapPin, Menu as MenuIcon, Settings, UserRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { AvatarImage } from "@/components/common/AvatarImage";
 import { SearchInput } from "@/components/common/SearchInput";
 import { StatusDot } from "@/components/common/StatusIndicator";
@@ -13,7 +14,10 @@ import { StatusMenuItems } from "@/features/presence/components/StatusMenu";
 import { sendWorldCommand } from "@/features/world/world-bridge";
 import { useWorldStore } from "@/features/world/world-store";
 import { walkToMyDesk } from "@/hooks/useOfficeBootstrap";
+import { useAccessToken } from "@/features/auth/session";
 import { BRAND } from "@/lib/config";
+import { env } from "@/lib/env";
+import { apiRequest } from "@/services/api/api-client";
 import { useAppStore } from "@/stores/app-store";
 import { useUiStore } from "@/stores/ui-store";
 import { NAV_ITEMS } from "./NavigationRail";
@@ -93,10 +97,21 @@ function GlobalSearch() {
   );
 }
 
+type OfficeChoice = { id: string; officeName: string; organizationName: string };
+
 export function TopNavigation() {
+  const router = useRouter();
   const workspace = useAppStore((s) => s.workspace);
   const floorId = useWorldStore((s) => s.floorId);
   const me = useLocalUser();
+  const signedIn = useAccessToken();
+  const [offices, setOffices] = useState<OfficeChoice[]>([]);
+  useEffect(() => {
+    if (!env.apiBaseUrl || !signedIn) return;
+    void apiRequest<{ offices: OfficeChoice[] }>("/workspaces")
+      .then((result) => setOffices(result.offices))
+      .catch(() => setOffices([]));
+  }, [signedIn]);
   const unread = useUiStore((s) => s.activity.length);
   const ui = useUiStore.getState;
   const floor = workspace?.floors.find((f) => f.id === floorId);
@@ -129,10 +144,22 @@ export function TopNavigation() {
           </button>
         </MenuTrigger>
         <MenuContent>
-          <MenuLabel>Workspaces</MenuLabel>
-          <MenuItem><Building2 className="size-4 text-muted" />{workspace?.name}<Check className="ml-auto size-3.5 text-accent" /></MenuItem>
+          <MenuLabel>Offices</MenuLabel>
+          {env.apiBaseUrl && signedIn ? offices.map((office) => (
+            <MenuItem key={office.id} onSelect={() => router.push(`/workspace/${office.id}/office`)}>
+              <Building2 className="size-4 text-muted" />
+              <span className="min-w-0 flex-1 truncate">{office.officeName}</span>
+              {office.id === workspace?.id && <Check className="ml-auto size-3.5 text-accent" />}
+            </MenuItem>
+          )) : (
+            <MenuItem><Building2 className="size-4 text-muted" />{workspace?.name}<Check className="ml-auto size-3.5 text-accent" /></MenuItem>
+          )}
           <MenuSeparator />
-          <MenuItem disabled hint="Needs backend">Add another workspace</MenuItem>
+          {env.apiBaseUrl ? (
+            <MenuItem onSelect={() => router.push(signedIn ? "/offices" : "/login")}>{signedIn ? "All offices" : "Sign in"}</MenuItem>
+          ) : (
+            <MenuItem disabled hint="Running on this computer">Add another office</MenuItem>
+          )}
         </MenuContent>
       </Menu>
 

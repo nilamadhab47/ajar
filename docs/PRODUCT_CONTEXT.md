@@ -32,7 +32,7 @@ wide open.
 | Layer | State |
 |---|---|
 | Frontend | **Built and playable.** Next.js + Phaser. Typecheck, lint and production build pass. |
-| Backend | **Office rows stay inside that office.** A request sets the person and the office, and Postgres only returns rows for a member of that office. A guest cannot read invitations. The office in the browser still uses the mock adapter. |
+| Backend | **Sign-in is a page.** `/login` covers the magic link, password, Google, and Microsoft. `/invite` accepts an invitation. `/offices` lists the offices that person belongs to. With no API address, the demo office still opens on its own. |
 | Database | **Row security is on for office tables.** The API user is a superuser, so office queries switch to `ajar_app` for the transaction. The app still persists in this browser under `ajar.` keys. |
 | Audio/video | Local capture + preview only. No transport. UI labels conversations **Simulated**. Phaser audio is off. |
 | Art | Original, procedurally generated from code (`src/art`). Starter quality, replaceable. |

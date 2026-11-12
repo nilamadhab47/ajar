@@ -17,6 +17,7 @@ export async function apiRequest<T>(path: string, init: RequestInit & { json?: u
   const token = authTokenProvider();
   const res = await fetch(`${env.apiBaseUrl}${path}`, {
     ...init,
+    credentials: "include",
     headers: {
       Accept: "application/json",
       ...(init.json !== undefined ? { "Content-Type": "application/json" } : {}),

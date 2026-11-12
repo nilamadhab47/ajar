@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/common/LoadingState";
 import { SearchInput } from "@/components/common/SearchInput";
 import { IconButton } from "@/components/ui/button";
 import { Menu, MenuContent, MenuItem, MenuLabel, MenuTrigger } from "@/components/ui/menu";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useAllUsers } from "@/features/people/use-people";
 import { cn, formatTime } from "@/lib/utils";
 import type { ChatAttachment, ChatChannel, ChatMessage, User as UserModel } from "@/types/domain";
@@ -66,7 +66,7 @@ function Message({ message, sender, replies, onOpenThread, compact }: { message:
       {sender ? <AvatarImage avatar={sender.avatar} size={compact ? 24 : 30} className="mt-0.5" /> : <span className="mt-0.5 size-[30px] shrink-0 rounded-md bg-hover" />}
       <div className="min-w-0 flex-1">
         <p className="flex items-baseline gap-1.5">
-          <span className="truncate text-[13px] font-semibold">{message.senderId === LOCAL_USER_ID ? "You" : (sender?.displayName ?? "Former member")}</span>
+          <span className="truncate text-[13px] font-semibold">{message.senderId === currentUserId() ? "You" : (sender?.displayName ?? "Former member")}</span>
           <time className="shrink-0 text-[11px] text-muted" dateTime={new Date(message.timestamp).toISOString()}>{formatTime(message.timestamp)}</time>
         </p>
         {message.message && <p className="whitespace-pre-wrap break-words text-[13px] leading-snug">{message.message}</p>}
@@ -80,7 +80,7 @@ function Message({ message, sender, replies, onOpenThread, compact }: { message:
         {(message.reactions.length > 0 || !!replies) && (
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {message.reactions.map((r) => {
-              const mine = r.userIds.includes(LOCAL_USER_ID);
+              const mine = r.userIds.includes(currentUserId());
               return (
                 <button key={r.emoji} type="button" aria-pressed={mine} aria-label={`${r.emoji} ${r.userIds.length} reactions`} onClick={() => toggle(r.emoji)}
                   className={cn("inline-flex h-5 items-center gap-1 rounded-full border px-1.5 text-[11px]", mine ? "border-accent bg-accent-soft text-accent" : "border-line bg-panel hover:bg-hover")}>

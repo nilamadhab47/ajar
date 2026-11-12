@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { getMediaAdapter } from "@/features/media/media-controller";
 import { getRealtime } from "@/services/realtime/realtime-client";
 import { uid } from "@/lib/utils";
@@ -33,7 +33,7 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     const id = uid("conv");
     set({ active: { id, scope, invitedIds: targetIds, joinedIds: [], startedAt: Date.now() }, minimized: false, expanded: false });
     void getMediaAdapter().joinConversation(id, targetIds);
-    getRealtime().send("conversation:join", { playerId: LOCAL_USER_ID, conversationId: id, targetIds });
+    getRealtime().send("conversation:join", { playerId: currentUserId(), conversationId: id, targetIds });
   },
   participantJoined: (conversationId, userId) =>
     set((s) => (s.active?.id === conversationId && !s.active.joinedIds.includes(userId) ? { active: { ...s.active, joinedIds: [...s.active.joinedIds, userId] } } : s)),
@@ -46,7 +46,7 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
   leave: () => {
     const { active } = get();
     if (!active) return;
-    getRealtime().send("conversation:leave", { playerId: LOCAL_USER_ID, conversationId: active.id });
+    getRealtime().send("conversation:leave", { playerId: currentUserId(), conversationId: active.id });
     void getMediaAdapter().leaveConversation();
     set({ active: null });
   },

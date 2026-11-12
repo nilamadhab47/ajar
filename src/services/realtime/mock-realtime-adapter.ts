@@ -1,4 +1,5 @@
-import { DEMO_CHANNEL_LINES, DEMO_DM_REPLIES, DEMO_NEARBY_REPLIES, DEMO_FLOORS, LOCAL_USER_ID } from "@/data/demo-workspace";
+import { DEMO_CHANNEL_LINES, DEMO_DM_REPLIES, DEMO_NEARBY_REPLIES, DEMO_FLOORS } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { DEMO_DESK_ASSIGNMENTS, DEMO_PARTICIPANTS, DEMO_POIS, type DemoParticipant } from "@/data/demo-participants";
 import type { AnimationState, Direction } from "@/features/avatar/types/avatar.types";
 import { NavGrid } from "@/features/world/engine/CollisionSystem";
@@ -131,7 +132,7 @@ export class MockRealtimeAdapter extends BaseRealtimeAdapter {
         const p = payload as ClientEventMap["player:wave"];
         const bot = this.bots.find((b) => b.id === p.targetId);
         if (bot && bot.status !== "dnd" && bot.status !== "focus")
-          this.later(900, () => this.emit("player:waved", { playerId: bot.id, targetId: LOCAL_USER_ID }));
+          this.later(900, () => this.emit("player:waved", { playerId: bot.id, targetId: currentUserId() }));
         break;
       }
       case "conversation:join": {
@@ -208,7 +209,7 @@ export class MockRealtimeAdapter extends BaseRealtimeAdapter {
         if (d < WORLD_CONFIG.tileSize * 3 && this.local.x > 0) {
           b.wavedAtLocal = true;
           this.lastWaveAt = now;
-          this.later(1200, () => this.emit("player:waved", { playerId: b.id, targetId: LOCAL_USER_ID }));
+          this.later(1200, () => this.emit("player:waved", { playerId: b.id, targetId: currentUserId() }));
         }
       }
     }

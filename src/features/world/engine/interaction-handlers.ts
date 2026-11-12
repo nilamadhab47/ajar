@@ -1,4 +1,4 @@
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { BRAND } from "@/lib/config";
 import { deskOwner, useDeskStore } from "@/features/desk/desk-store";
 import { usePeopleStore } from "@/features/people/people-store";
@@ -16,7 +16,7 @@ interface InteractionHandler {
 }
 
 const ui = () => useUiStore.getState();
-const broadcast = (object: WorldObject, action: string) => getRealtime().send("player:interaction", { playerId: LOCAL_USER_ID, objectId: object.id, action });
+const broadcast = (object: WorldObject, action: string) => getRealtime().send("player:interaction", { playerId: currentUserId(), objectId: object.id, action });
 const center = (o: WorldObject) => ({ x: o.x + o.width / 2, y: o.y });
 
 const BOOKS = ["Thinking in Systems", "The Design of Everyday Things", "A Pattern Language", "Team Topologies", "The Pragmatic Programmer"];
@@ -34,7 +34,7 @@ export const INTERACTIONS: Record<Exclude<InteractionType, "none">, InteractionH
     describe: (o) => {
       const deskId = String(o.properties.deskId ?? "");
       const ownerId = deskOwner(useDeskStore.getState(), deskId);
-      const owner = ownerId === LOCAL_USER_ID ? "Your desk" : ownerId ? (usePeopleStore.getState().users[ownerId]?.displayName ?? "Assigned") : o.properties.hot ? "Hot desk" : "Unassigned";
+      const owner = ownerId === currentUserId() ? "Your desk" : ownerId ? (usePeopleStore.getState().users[ownerId]?.displayName ?? "Assigned") : o.properties.hot ? "Hot desk" : "Unassigned";
       return { title: `${getObjectDef(o.type)?.label} ${deskId}`, detail: owner };
     },
     run: (o) => ui().openDialog({ type: "desk", objectId: o.id, deskId: String(o.properties.deskId ?? o.id), label: getObjectDef(o.type)?.label ?? "Desk", hot: !!o.properties.hot }),

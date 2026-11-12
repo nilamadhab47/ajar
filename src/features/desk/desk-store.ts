@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { migrateLegacyStorage } from "@/lib/storage";
 
 migrateLegacyStorage();
@@ -40,7 +40,7 @@ export const useDeskStore = create<DeskState>()(
 );
 
 export function deskOwner(state: Pick<DeskState, "assignments" | "myDeskId">, deskId: string): string | null {
-  if (state.myDeskId === deskId) return LOCAL_USER_ID;
+  if (state.myDeskId === deskId) return currentUserId();
   return state.assignments[deskId] ?? null;
 }
 

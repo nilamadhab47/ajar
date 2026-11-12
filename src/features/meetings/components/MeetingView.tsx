@@ -8,7 +8,7 @@ import { SimulatedTag } from "@/components/overlays/ConversationOverlay";
 import { Button, IconButton } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Menu, MenuContent, MenuItem, MenuLabel, MenuTrigger } from "@/components/ui/menu";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useChatStore } from "@/features/chat/chat-store";
 import { LocalVideo } from "@/features/media/components/LocalVideo";
 import { mediaActions, useMediaStore } from "@/features/media/media-controller";
@@ -60,7 +60,7 @@ function MeetingChat({ channelId }: { channelId: string }) {
         {!messages?.length && <EmptyState title="No messages yet" hint="Meeting chat stays with this meeting." />}
         {messages?.map((m) => (
           <li key={m.id} className="text-[13px]">
-            <span className="font-semibold">{m.senderId === LOCAL_USER_ID ? "You" : (users[m.senderId]?.displayName ?? "Guest")}</span>{" "}
+            <span className="font-semibold">{m.senderId === currentUserId() ? "You" : (users[m.senderId]?.displayName ?? "Guest")}</span>{" "}
             <span className="text-[11px] text-muted">{formatTime(m.timestamp)}</span>
             <p className="whitespace-pre-wrap break-words leading-snug">{m.message}</p>
           </li>
@@ -95,7 +95,7 @@ export function MeetingView() {
     );
 
   const participants = meeting.participants.map((id) => users[id]).filter(Boolean);
-  const invitable = Object.values(users).filter((u) => u.id !== LOCAL_USER_ID && !meeting.participants.includes(u.id) && !meeting.invited.includes(u.id));
+  const invitable = Object.values(users).filter((u) => u.id !== currentUserId() && !meeting.participants.includes(u.id) && !meeting.invited.includes(u.id));
 
   return (
     <Dialog
@@ -120,7 +120,7 @@ export function MeetingView() {
             )}
           </div>
           <div className="grid shrink-0 grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
-            {participants.map((u) => <ParticipantTile key={u.id} user={u} self={u.id === LOCAL_USER_ID} />)}
+            {participants.map((u) => <ParticipantTile key={u.id} user={u} self={u.id === currentUserId()} />)}
           </div>
           <div className="flex shrink-0 items-center justify-center gap-1.5">
             <IconButton label={media.microphone === "on" ? "Mute microphone" : "Unmute microphone"} active={media.microphone === "on"} className="border border-line" onClick={() => void mediaActions.toggleMicrophone()}>
@@ -160,7 +160,7 @@ export function MeetingView() {
               {participants.map((u) => (
                 <li key={u.id} className="flex items-center gap-2 rounded-md px-1.5 py-1">
                   <AvatarImage avatar={u.avatar} size={26} />
-                  <span className="min-w-0 flex-1 truncate text-[13px]">{u.id === LOCAL_USER_ID ? `${u.displayName} (you)` : u.displayName}</span>
+                  <span className="min-w-0 flex-1 truncate text-[13px]">{u.id === currentUserId() ? `${u.displayName} (you)` : u.displayName}</span>
                   {u.id === meeting.hostId && <span className="text-[10px] font-medium uppercase tracking-wide text-muted">Host</span>}
                 </li>
               ))}

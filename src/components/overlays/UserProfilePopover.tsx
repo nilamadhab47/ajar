@@ -5,7 +5,7 @@ import { DoorOpen, Footprints, Hand, MapPin, MessageSquare, Pencil, Shirt, Stick
 import { AvatarPreview } from "@/components/common/AvatarImage";
 import { DemoTag, StatusIndicator } from "@/components/common/StatusIndicator";
 import { Button, IconButton } from "@/components/ui/button";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useChatStore } from "@/features/chat/chat-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { Lantern } from "@/features/knock/Lantern";
@@ -27,9 +27,9 @@ export function UserProfilePopover() {
   const activity = usePeopleStore((s) => (id ? s.presence[id]?.currentActivity : null));
   const nearby = useWorldStore((s) => s.nearby.some((n) => n.userId === id));
   const talking = useConversationStore((s) => !!id && !!s.active?.invitedIds.includes(id));
-  const deskId = useDeskStore((s) => (id === LOCAL_USER_ID ? s.myDeskId : (Object.keys(s.assignments).find((d) => deskOwner(s, d) === id) ?? null)));
+  const deskId = useDeskStore((s) => (id === currentUserId() ? s.myDeskId : (Object.keys(s.assignments).find((d) => deskOwner(s, d) === id) ?? null)));
   const ui = useUiStore.getState;
-  const isMe = id === LOCAL_USER_ID;
+  const isMe = id === currentUserId();
 
   return (
     <AnimatePresence>

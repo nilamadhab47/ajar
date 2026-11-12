@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import { LOCAL_USER_ID } from "@/data/demo-workspace";
+import { currentUserId } from "@/features/people/people-store";
 import { useAvatarStore } from "@/features/avatar/avatar-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { useDeskStore } from "@/features/desk/desk-store";
@@ -126,18 +126,18 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     const me = getLocalUser();
     const profile = useProfileStore.getState();
     this.player = new PlayerCharacter(this, {
-      id: LOCAL_USER_ID, name: me.displayName, x: spawn.x, y: spawn.y, direction: spawn.direction,
+      id: currentUserId(), name: me.displayName, x: spawn.x, y: spawn.y, direction: spawn.direction,
       appearance: me.avatar, status: me.status, statusEmoji: profile.statusEmoji, door: profile.door, isLocal: true,
     });
     this.player.sprite.setInteractive({ useHandCursor: true }).on(Phaser.Input.Events.GAMEOBJECT_POINTER_UP, (p: Phaser.Input.Pointer) => {
-      if (p.getDistance() < 6 && !this.edit.enabled) useUiStore.getState().selectUser(LOCAL_USER_ID);
+      if (p.getDistance() < 6 && !this.edit.enabled) useUiStore.getState().selectUser(currentUserId());
     });
     this.player.onSeatChange = (seat, previous) => {
       if (previous) previous.occupantId = null;
-      if (seat) seat.occupantId = LOCAL_USER_ID;
+      if (seat) seat.occupantId = currentUserId();
       useWorldStore.getState().set({ sitting: !!seat });
       const target = seat ?? previous!;
-      getRealtime().send("player:interaction", { playerId: LOCAL_USER_ID, objectId: target.objectId, action: seat ? "sit" : "stand", seatId: target.id });
+      getRealtime().send("player:interaction", { playerId: currentUserId(), objectId: target.objectId, action: seat ? "sit" : "stand", seatId: target.id });
     };
 
     // ---- systems
@@ -159,7 +159,7 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     });
 
     const realtime = getRealtime();
-    this.publisher = new MovementPublisher(realtime, LOCAL_USER_ID);
+    this.publisher = new MovementPublisher(realtime, currentUserId());
     this.bindRealtime();
     this.bindStores();
     this.disposers.push(
@@ -298,8 +298,8 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     const room = roomAt(this.map.rooms, this.player.x, this.player.y - 4);
     if (room?.id === this.currentRoom?.id) return;
     const realtime = getRealtime();
-    if (this.currentRoom) realtime.send("room:leave", { playerId: LOCAL_USER_ID, roomId: this.currentRoom.id });
-    if (room) realtime.send("room:join", { playerId: LOCAL_USER_ID, roomId: room.id });
+    if (this.currentRoom) realtime.send("room:leave", { playerId: currentUserId(), roomId: this.currentRoom.id });
+    if (room) realtime.send("room:join", { playerId: currentUserId(), roomId: room.id });
     const conversation = useConversationStore.getState();
     if (conversation.active?.scope.type === "room" && conversation.active.scope.roomId !== room?.id) {
       conversation.leave();
@@ -484,7 +484,7 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
         return void this.walkNear(room.bounds.x + room.bounds.width / 2, room.bounds.y + room.bounds.height * 0.75);
       }
       case "locate-user": {
-        const target = c.userId === LOCAL_USER_ID ? this.player : this.remotes.get(c.userId);
+        const target = c.userId === currentUserId() ? this.player : this.remotes.get(c.userId);
         if (!target) return ui.toast({ title: "Not on this floor", tone: "warning" });
         this.cameraCtl.panTo(target.x, target.y - 20);
         return this.pulse(target.x, target.y);
@@ -497,19 +497,19 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
         return this.standUp();
       case "emote":
         this.player.showEmote(c.emoji);
-        return getRealtime().send("player:interaction", { playerId: LOCAL_USER_ID, objectId: "self", action: `emote:${c.emoji}` });
+        return getRealtime().send("player:interaction", { playerId: currentUserId(), objectId: "self", action: `emote:${c.emoji}` });
       case "action":
         this.player.cancelPath();
         this.player.playAction(c.action);
         if (c.action === "wave") {
-          const targetId = c.targetId ?? (ui.selectedUserId && ui.selectedUserId !== LOCAL_USER_ID ? ui.selectedUserId : useWorldStore.getState().nearby[0]?.userId);
-          getRealtime().send("player:wave", { playerId: LOCAL_USER_ID, targetId });
+          const targetId = c.targetId ?? (ui.selectedUserId && ui.selectedUserId !== currentUserId() ? ui.selectedUserId : useWorldStore.getState().nearby[0]?.userId);
+          getRealtime().send("player:wave", { playerId: currentUserId(), targetId });
         }
         return;
       case "say":
         this.player.say(c.text);
         return getRealtime().send("chat:send", {
-          message: { id: `nearby-${Date.now()}`, channelId: "nearby", senderId: LOCAL_USER_ID, message: c.text, timestamp: Date.now(), reactions: [] },
+          message: { id: `nearby-${Date.now()}`, channelId: "nearby", senderId: currentUserId(), message: c.text, timestamp: Date.now(), reactions: [] },
         });
       case "change-floor":
         return this.changeFloor(c.floorId, c.via);
@@ -528,14 +528,14 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     if (floorId === this.floorId || useWorldStore.getState().transitioning) return;
     useWorldStore.getState().set({ transitioning: true });
     useConversationStore.getState().leave();
-    getRealtime().send("player:leave", { playerId: LOCAL_USER_ID });
+    getRealtime().send("player:leave", { playerId: currentUserId() });
     this.cameras.main.fadeOut(280, 246, 244, 242);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => this.scene.restart({ floorId, spawn: via } satisfies OfficeSceneData));
   }
 
   // ------------------------------------------------------------------ realtime → world
   private addRemote(player: Player, user: User): void {
-    if (player.id === LOCAL_USER_ID || this.remotes.has(player.id) || player.currentFloorId !== this.floorId) return;
+    if (player.id === currentUserId() || this.remotes.has(player.id) || player.currentFloorId !== this.floorId) return;
     const remote = new RemoteCharacter(this, {
       id: player.id, name: user.displayName.split(" ")[0], x: player.x, y: player.y, direction: player.direction,
       appearance: user.avatar, status: player.status, door: user.door,
@@ -572,7 +572,7 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
       if (s.floorId !== this.floorId) return;
       this.remotes.forEach((r) => r.destroy());
       this.remotes.clear();
-      for (const seat of this.seats.values()) if (seat.occupantId !== LOCAL_USER_ID) seat.occupantId = null;
+      for (const seat of this.seats.values()) if (seat.occupantId !== currentUserId()) seat.occupantId = null;
       const users = new Map(s.users.map((u) => [u.id, u]));
       for (const player of s.players) {
         const user = users.get(player.userId);

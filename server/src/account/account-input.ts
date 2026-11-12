@@ -16,6 +16,13 @@ export function officeName(value: unknown): string | null {
   return name;
 }
 
+const doors = new Set(["open", "ask", "closed"]);
+
+/** Accepts a door the office already understands. */
+export function doorState(value: unknown): string | null {
+  return typeof value === "string" && doors.has(value) ? value : null;
+}
+
 /** Accepts a presence status the office already understands. */
 export function presenceStatus(value: unknown): string | null {
   return typeof value === "string" && statuses.has(value) ? value : null;
