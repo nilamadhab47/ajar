@@ -17,7 +17,7 @@ export const DEMO_FLOORS: Floor[] = [
 ];
 
 export const DEMO_WORKSPACE: Workspace = {
-  id: "demo", name: "Marigold Studio", officeName: "Ajar", logo: null, activeFloorId: "floor-1",
+  id: "demo", name: "Cruit", officeName: "Ajar", logo: "/brand/cruit-icon-filled.png", activeFloorId: "floor-1",
   members: [LOCAL_USER_ID, ...DEMO_PARTICIPANTS.map((p) => p.user.id)], floors: DEMO_FLOORS,
 };
 
@@ -27,7 +27,7 @@ export const DEMO_CHANNELS: ChatChannel[] = [
   { id: "random", kind: "channel", name: "random", memberIds: DEMO_WORKSPACE.members, topic: "Anything goes" },
   { id: "group-launch", kind: "group", name: "Launch crew", memberIds: [LOCAL_USER_ID, "demo-sofia", "demo-hana", "demo-lucas"] },
   { id: "dm-demo-sofia", kind: "dm", name: "Sofia Lindqvist", memberIds: [LOCAL_USER_ID, "demo-sofia"] },
-  { id: "dm-demo-aarav", kind: "dm", name: "Aarav Mehta", memberIds: [LOCAL_USER_ID, "demo-aarav"] },
+  { id: "dm-demo-aarav", kind: "dm", name: "Prayag", memberIds: [LOCAL_USER_ID, "demo-aarav"] },
 ];
 
 const MIN = 60_000;

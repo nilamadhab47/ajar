@@ -23,7 +23,7 @@ interface ProfileState {
 export const useProfileStore = create<ProfileState>()(
   persist(
     (set) => ({
-      displayName: "You",
+      displayName: "Nil",
       title: "",
       status: "available",
       statusEmoji: "",
@@ -42,6 +42,14 @@ export const useProfileStore = create<ProfileState>()(
         void usersApi.updateProfile({ door });
       },
     }),
-    { name: "ajar.profile", version: 1 },
+    {
+      name: "ajar.profile",
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = persisted as { displayName?: string };
+        if (version < 2 && state.displayName && /madhab/i.test(state.displayName)) state.displayName = "Nil";
+        return state as ProfileState;
+      },
+    },
   ),
 );

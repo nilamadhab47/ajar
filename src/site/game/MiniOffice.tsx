@@ -65,7 +65,7 @@ export function MiniOffice() {
       case "note-request": setNoteText(""); setNoteFor(event); break;
       case "note-placed":
         setPlaced({ name: event.name, canFastForward: event.canFastForward });
-        if (!event.canFastForward) setToast({ title: `Note left for ${event.name}`, body: "It will be waiting when she looks up." });
+        if (!event.canFastForward) setToast({ title: `Note left for ${event.name}`, body: "It will be waiting when they look up." });
         track("office_note", { to: event.name });
         break;
       case "note-read": setPlaced(null); setRead(event); break;
@@ -215,8 +215,8 @@ export function MiniOffice() {
 
         <p id="mini-office-help" className="sr-only">
           A small office seen from above: a reception, a block of desks, a meeting room called Atlas, a kitchen and a
-          focus room with its door closed. Three simulated teammates are here. Maya&apos;s door is ajar, Tomás asks for a
-          knock first, Zainab&apos;s door is closed. Hana&apos;s desk is empty because it is night where she lives. Every
+          focus room with its door closed. Three simulated teammates are here. Prayag&apos;s door is ajar, Yuri asks for a
+          knock first, Steye&apos;s door is closed. Zenno&apos;s desk is empty because it is night where they live. Every
           action is also available from the buttons in and below this area.
         </p>
 
@@ -307,7 +307,7 @@ export function MiniOffice() {
             </div>
           ) : read ? (
             <div className="w-full max-w-md rounded-3xl bg-ivory p-4 text-night shadow-2xl" role="status">
-              <p className="text-[0.95rem] font-semibold">{read.name} read your note at 9:02, her time.</p>
+              <p className="text-[0.95rem] font-semibold">{read.name} read your note at 9:02, their time.</p>
               <p className="mt-2 w-fit rotate-[-1deg] rounded-md bg-[#f4c36b] px-3 py-2 text-[0.9rem] shadow">“{read.text}”</p>
               <p className="mt-2 w-fit rounded-2xl bg-mist px-3 py-1.5 text-[0.9rem]">{read.reply}</p>
               <div className="mt-2 flex items-center justify-between gap-2">
@@ -317,9 +317,9 @@ export function MiniOffice() {
             </div>
           ) : placed?.canFastForward ? (
             <div className="flex w-full max-w-md flex-wrap items-center justify-between gap-3 rounded-3xl bg-ivory p-4 text-night shadow-2xl" role="status">
-              <p className="text-[0.95rem]"><strong className="font-semibold">Note left on {placed.name}&apos;s desk.</strong> <span className="text-evening">She&apos;s asleep for another seven hours.</span></p>
+              <p className="text-[0.95rem]"><strong className="font-semibold">Note left on {placed.name}&apos;s desk.</strong> <span className="text-evening">Asleep for another seven hours.</span></p>
               <button type="button" className="btn btn-lamp !min-h-10 !px-4 !text-[0.88rem]" onClick={() => { apiRef.current?.fastForward(); setPlaced(null); track("office_fast_forward"); }}>
-                Skip to her morning <span className="arrow" aria-hidden="true">→</span>
+                Skip to the morning <span className="arrow" aria-hidden="true">→</span>
               </button>
             </div>
           ) : prompt ? (

@@ -104,8 +104,8 @@ adapter. It reuses the app's `NavGrid` and A* (`findPath`).
 
 - Walk: arrow keys / WASD while the office has focus (Esc gives the keyboard back), click or tap a spot, a
   touch pad on touch devices, or the room buttons under it.
-- People (all labelled Demo): Maya (door open, knock accepted at once), Tomás (ask first, decides after a
-  moment), Zainab (door closed, offers a note), Hana's empty desk (leave a note, then "Skip to her morning").
+- People (all labelled Demo): Prayag, Engineering (door open, knock accepted at once), Yuri, CTO (ask first, decides after a
+  moment), Steye, CEO (door closed, offers a note), Zenno, COO's empty desk (leave a note, then skip to the morning).
 - **Nothing here connects audio or video, and the UI says so.** Conversations are short scripted text.
 - React owns every HTML control; the Phaser game sits in a ref. Events flow through `MiniEvent` / `MiniOfficeApi`.
 

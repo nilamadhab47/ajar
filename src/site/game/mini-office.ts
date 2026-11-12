@@ -48,7 +48,7 @@ interface PersonDef {
 
 const PEOPLE: PersonDef[] = [
   {
-    id: "maya", name: "Maya", sprite: SPRITE.office_lady, x: 418, y: 258, facing: "right", door: "open",
+    id: "maya", name: "Prayag", sprite: SPRITE.office_lady, x: 418, y: 258, facing: "right", door: "open",
     lines: [
       { from: "them", text: "Come on in. What's up?" },
       { from: "you", text: "Two minutes on the launch checklist?" },
@@ -56,7 +56,7 @@ const PEOPLE: PersonDef[] = [
     ],
   },
   {
-    id: "tomas", name: "Tomás", sprite: SPRITE.office_worker, x: 648, y: 336, facing: "down", door: "ask",
+    id: "tomas", name: "Yuri", sprite: SPRITE.office_worker, x: 648, y: 336, facing: "down", door: "ask",
     patrol: [{ x: 648, y: 336 }, { x: 648, y: 548 }],
     lines: [
       { from: "them", text: "Hey, give me one second to save this… okay." },
@@ -65,12 +65,12 @@ const PEOPLE: PersonDef[] = [
     ],
   },
   {
-    id: "zainab", name: "Zainab", sprite: SPRITE.manager, x: 246, y: 198, facing: "down", door: "closed", note: "Focus until 3:45",
+    id: "zainab", name: "Steye", sprite: SPRITE.manager, x: 246, y: 198, facing: "down", door: "closed", note: "Focus until 3:45",
     reach: { x: 146, y: 334 }, noteAt: { x: 150, y: 322 },
   },
 ];
 
-const HANA = { id: "hana", name: "Hana", sprite: SPRITE.receptionist, desk: { x: 426, y: 522 }, noteAt: { x: 464, y: 488 }, plate: { x: 480, y: 468 }, enter: { x: 240, y: 588 } };
+const HANA = { id: "hana", name: "Zenno", sprite: SPRITE.receptionist, desk: { x: 426, y: 522 }, noteAt: { x: 464, y: 488 }, plate: { x: 480, y: 468 }, enter: { x: 240, y: 588 } };
 
 const LABELS = [
   { text: "RECEPTION", x: 176, y: 500, dark: true },
@@ -310,7 +310,7 @@ class MiniScene extends Phaser.Scene {
       const plate = new Plate(this, this.opts.uiFont, def.name, def.door, def.note ? `Demo · ${def.note}` : "Demo");
       this.people.push({ def, actor, plate, door: def.door, patrolIndex: 0, waitUntil: 2500 });
     }
-    this.hana = { actor: null, plate: new Plate(this, this.opts.uiFont, "Hana's desk", "closed", "Away · 2:10 am for her"), state: "away" };
+    this.hana = { actor: null, plate: new Plate(this, this.opts.uiFont, "Zenno's desk", "closed", "Away · 2:10 am"), state: "away" };
 
     this.player = new Actor(this, SPRITE.developer, PLAYER_START.x, PLAYER_START.y, "right");
     this.youPlate = new Plate(this, this.opts.uiFont, "You", null, "");
@@ -477,7 +477,7 @@ class MiniScene extends Phaser.Scene {
       if (person.door === "closed") {
         list.push({
           id: def.id, x: spot.x, y: spot.y,
-          prompt: { targetId: def.id, kind: "note", door: "closed", title: `${def.name}'s door is closed.`, detail: def.note ? `${def.note}. A note will be waiting when she looks up.` : "Leave a note instead.", action: this.notes.has(def.id) ? "Leave another note" : "Leave a note" },
+          prompt: { targetId: def.id, kind: "note", door: "closed", title: `${def.name}'s door is closed.`, detail: def.note ? `${def.note}. A note will be waiting when they look up.` : "Leave a note instead.", action: this.notes.has(def.id) ? "Leave another note" : "Leave a note" },
         });
       } else {
         list.push({
@@ -495,12 +495,12 @@ class MiniScene extends Phaser.Scene {
       if (this.hana.state === "away")
         list.push({
           id: HANA.id, x: HANA.desk.x, y: HANA.desk.y,
-          prompt: { targetId: HANA.id, kind: "note", door: "closed", title: "Hana isn't in.", detail: "It's the middle of her night. Leave a note on her desk for the morning.", action: this.notes.has(HANA.id) ? "Leave another note" : "Leave a note on her desk" },
+          prompt: { targetId: HANA.id, kind: "note", door: "closed", title: "Zenno isn't in.", detail: "It's the middle of the night there. Leave a note on the desk for the morning.", action: this.notes.has(HANA.id) ? "Leave another note" : "Leave a note on the desk" },
         });
       else if (this.hana.state === "in" && this.hana.actor)
         list.push({
           id: HANA.id, x: this.hana.actor.x, y: this.hana.actor.y,
-          prompt: { targetId: HANA.id, kind: "knock", door: "open", title: "Hana's door is ajar.", detail: "A knock is accepted straight away.", action: "Knock" },
+          prompt: { targetId: HANA.id, kind: "knock", door: "open", title: "Zenno's door is ajar.", detail: "A knock is accepted straight away.", action: "Knock" },
         });
     }
     return list;
@@ -533,7 +533,7 @@ class MiniScene extends Phaser.Scene {
     const id = this.currentTarget();
     if (!id || this.pendingId || this.busy) return;
     if (id === HANA.id && this.hana?.state === "away") {
-      this.emit({ type: "note-request", targetId: HANA.id, name: "Hana", hint: "She'll find it on her desk in the morning." });
+      this.emit({ type: "note-request", targetId: HANA.id, name: "Zenno", hint: "They'll find it on the desk in the morning." });
       return;
     }
     const person = this.people.find((x) => x.def.id === id);
@@ -542,7 +542,7 @@ class MiniScene extends Phaser.Scene {
       return;
     }
     const actor = person?.actor ?? this.hana?.actor;
-    const name = person?.def.name ?? "Hana";
+    const name = person?.def.name ?? "Zenno";
     if (!actor) return;
     this.emit({ type: "sfx", name: "knock" });
     this.knockRings(actor.x, actor.y - 20);
@@ -617,7 +617,7 @@ class MiniScene extends Phaser.Scene {
     this.notes.set(targetId, { sprite, text: clean });
     this.promptKey = "";
     this.emit({ type: "sfx", name: "note-place" });
-    this.emit({ type: "note-placed", targetId, name: isHana ? "Hana" : (person?.def.name ?? ""), canFastForward: isHana && this.hana?.state === "away" });
+    this.emit({ type: "note-placed", targetId, name: isHana ? "Zenno" : (person?.def.name ?? ""), canFastForward: isHana && this.hana?.state === "away" });
   }
 
   fastForward(): void {
@@ -641,7 +641,7 @@ class MiniScene extends Phaser.Scene {
       const actor = new Actor(this, HANA.sprite, HANA.enter.x, HANA.enter.y, "up");
       hana.actor = actor;
       hana.plate.destroy();
-      hana.plate = new Plate(this, this.opts.uiFont, "Hana", "open", "Demo · 9:02 am for her");
+      hana.plate = new Plate(this, this.opts.uiFont, "Zenno", "open", "Demo · 9:02 am");
       actor.path = this.pathBetween(actor, HANA.desk) ?? [HANA.desk];
       this.emit({ type: "sfx", name: "footsteps" });
       actor.onArrive = () => {
@@ -652,7 +652,7 @@ class MiniScene extends Phaser.Scene {
         this.emit({ type: "sfx", name: "welcome-chime" });
         this.tweens.add({ targets: note.sprite, y: note.sprite.y - 12, alpha: 0, duration: 500, onComplete: () => note.sprite.destroy() });
         this.notes.delete(HANA.id);
-        this.emit({ type: "note-read", name: "Hana", text: note.text, reply: "Read it first thing. Looks good, two small comments on your doc." });
+        this.emit({ type: "note-read", name: "Zenno", text: note.text, reply: "Read it first thing. Looks good, two small comments on your doc." });
         this.time.delayedCall(6000, () => {
           this.tweens.add({ targets: this.morning, alpha: 0, duration: 2600 });
           this.emit({ type: "time", phase: "dusk" });

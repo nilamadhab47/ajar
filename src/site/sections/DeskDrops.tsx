@@ -75,7 +75,7 @@ export function DeskDrops() {
                 <span className="d-lamp scene-glow" style={at(520, 452)} />
                 <span className="d-note scene-note" style={at(466, 492)} />
                 <Sprite who="developer" row="idle_right" x={428} y={524} className="d-sender"><span className="px-tag">You</span></Sprite>
-                <Sprite who="receptionist" row="idle_right" x={428} y={524} className="d-reader"><PixelLantern door="open" /><span className="px-tag">Hana</span></Sprite>
+                <Sprite who="receptionist" row="idle_right" x={428} y={524} className="d-reader"><PixelLantern door="open" /><span className="px-tag">Zenno</span></Sprite>
                 <span className="scene-chip scene-chip-note d-typed" style={at(452, 478)}>Auth flow is ready for review. No rush.</span>
                 <span className="scene-chip scene-chip-note d-card" style={at(470, 484)}>“Auth flow is ready for review. No rush.”</span>
                 <span className="scene-chip d-reply" style={at(446, 452)}>Reviewed. Two small comments. Thanks!</span>
@@ -85,7 +85,7 @@ export function DeskDrops() {
               <p className="scene-clock pixel-label" aria-hidden="true">{BEATS[active].time.toUpperCase()}</p>
             </div>
             <p className="mt-3 text-[0.86rem] text-evening">
-              A scripted illustration. You can leave a real note on Hana&apos;s desk in the office above.
+              A scripted illustration. You can leave a real note on Zenno&apos;s desk in the office above.
             </p>
           </Reveal>
 

@@ -8,7 +8,7 @@ import { pose, px, useScene } from "../lib/scene";
 import { playSound } from "../lib/sound";
 
 const STEPS = [
-  { title: "You see someone", body: "Maya's lantern is lit. Her door is ajar." },
+  { title: "You see someone", body: "Prayag's lantern is lit. The door is ajar." },
   { title: "You knock", body: "One click. No microphone, no camera, nothing connects." },
   { title: "They decide", body: "Accept, not right now, or reply later. Any answer is fine." },
   { title: "Then you talk", body: "Only after a yes. Walk away and it ends by itself." },
@@ -96,11 +96,11 @@ export function Knock() {
         <Reveal delay={100}>
           <div ref={ref} className="scene" data-static={still ? "" : undefined}>
             <OfficeCrop x={318} y={158} w={300} h={210} label="A character walks up to a colleague whose lantern is lit, knocks, and is invited in.">
-              <Sprite who="office_lady" row="idle_down" x={428} y={262} className="k-host"><PixelLantern door="open" /><span className="px-tag">Maya</span></Sprite>
+              <Sprite who="office_lady" row="idle_down" x={428} y={262} className="k-host"><PixelLantern door="open" /><span className="px-tag">Prayag</span></Sprite>
               <Sprite who="developer" row="idle_right" x={388} y={300} className="k-visitor"><span className="px-tag">You</span></Sprite>
               <span className="k-ring scene-ring" style={at(428, 240)} />
               <span className="k-ring scene-ring" style={at(428, 240)} />
-              <span className="scene-chip k-prompt" style={at(396, 352)}>Maya&apos;s door is ajar <b>Knock</b></span>
+              <span className="scene-chip k-prompt" style={at(396, 352)}>Prayag&apos;s door is ajar <b>Knock</b></span>
               <span className="scene-chip k-wait" style={at(428, 214)}>…</span>
               <span className="scene-chip k-yes scene-chip-lamp" style={at(428, 214)}>Come on in.</span>
               <span className="scene-chip k-line-1 scene-chip-you" style={at(392, 352)}>Two minutes on the launch list?</span>
