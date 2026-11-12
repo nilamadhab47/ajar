@@ -25,15 +25,16 @@ type OfficeRow = {
 export class AccountService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) {}
 
-  /** Creates a company, its first office, and makes the caller the owner. */
+  /** Creates a company, its first office and floor, and makes the caller the owner. */
   async createOrganization(userId: string, companyName: string, officeName: string) {
     return this.database.asOffice(userId, null, async (query) => {
-      const ids = await query<{ organization_id: string; office_id: string }>(
-        "select uuidv7() as organization_id, uuidv7() as office_id",
+      const ids = await query<{ organization_id: string; office_id: string; floor_id: string }>(
+        "select uuidv7() as organization_id, uuidv7() as office_id, uuidv7() as floor_id",
       );
       const organizationId = ids.rows[0]?.organization_id;
       const officeId = ids.rows[0]?.office_id;
-      if (!organizationId || !officeId) throw new Error("organization was not created");
+      const floorId = ids.rows[0]?.floor_id;
+      if (!organizationId || !officeId || !floorId) throw new Error("organization was not created");
 
       await query("insert into organizations (id, name) values ($1, $2)", [
         organizationId,
@@ -50,6 +51,11 @@ export class AccountService {
          values ($1, $2, 'owner')`,
         [officeId, userId],
       );
+      await query("insert into floors (id, workspace_id, name) values ($1, $2, $3)", [
+        floorId,
+        officeId,
+        officeName,
+      ]);
       await query(
         `insert into audit_log (workspace_id, actor_id, action, target)
          values ($1, $2, 'organization.created', $3)`,
