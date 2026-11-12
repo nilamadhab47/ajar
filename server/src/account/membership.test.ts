@@ -50,7 +50,7 @@ test("an invite joins the matching person, and the last owner stays", async () =
        values ($1, $2, 'member', $3, now() + interval '7 days', $4)`,
       [officeId, memberEmail, tokenHash(token), ownerId],
     );
-    await expectKind(ForbiddenException, membership.acceptInvite(otherId, token));
+    await expectKind(UnauthorizedException, membership.acceptInvite(otherId, token));
     const accepted = await membership.acceptInvite(memberId, token);
     assert.deepEqual(accepted, { officeId, role: "member" });
     await expectKind(UnauthorizedException, membership.acceptInvite(memberId, token));

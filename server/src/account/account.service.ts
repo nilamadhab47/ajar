@@ -27,22 +27,23 @@ export class AccountService {
 
   /** Creates a company, its first office, and makes the caller the owner. */
   async createOrganization(userId: string, companyName: string, officeName: string) {
-    return this.database.transaction(async (query) => {
-      const organization = await query<{ id: string; name: string }>(
-        "insert into organizations (name) values ($1) returning id, name",
-        [companyName],
+    return this.database.asOffice(userId, null, async (query) => {
+      const ids = await query<{ organization_id: string; office_id: string }>(
+        "select uuidv7() as organization_id, uuidv7() as office_id",
       );
-      const organizationId = organization.rows[0]?.id;
-      if (!organizationId) throw new Error("organization was not created");
+      const organizationId = ids.rows[0]?.organization_id;
+      const officeId = ids.rows[0]?.office_id;
+      if (!organizationId || !officeId) throw new Error("organization was not created");
 
-      const office = await query<{ id: string; name: string; office_name: string }>(
-        `insert into workspaces (organization_id, name, office_name)
-         values ($1, $2, $3)
-         returning id, name, office_name`,
-        [organizationId, officeName, officeName],
+      await query("insert into organizations (id, name) values ($1, $2)", [
+        organizationId,
+        companyName,
+      ]);
+      await query(
+        `insert into workspaces (id, organization_id, name, office_name)
+         values ($1, $2, $3, $3)`,
+        [officeId, organizationId, officeName],
       );
-      const officeId = office.rows[0]?.id;
-      if (!officeId) throw new Error("office was not created");
 
       await query(
         `insert into workspace_members (workspace_id, user_id, role)
@@ -69,7 +70,8 @@ export class AccountService {
 
   /** Lists the offices where this person has a role. */
   async listOffices(userId: string) {
-    const rows = await this.database.query<OfficeRow>(
+    const rows = await this.database.asOffice(userId, null, (query) =>
+      query<OfficeRow>(
       `select w.id, w.name, w.office_name, w.organization_id, o.name as organization_name, m.role
        from workspace_members m
        join workspaces w on w.id = m.workspace_id
@@ -77,6 +79,7 @@ export class AccountService {
        where m.user_id = $1
        order by m.created_at`,
       [userId],
+    ),
     );
     return rows.rows.map((row) => ({
       id: row.id,
@@ -90,10 +93,12 @@ export class AccountService {
 
   /** Returns the signed-in person in the shape the office client already expects. */
   async currentPerson(userId: string) {
-    const found = await this.database.query<PersonRow>(
-      `select id, email, display_name, title, avatar, status, door
-       from users where id = $1`,
-      [userId],
+    const found = await this.database.asOffice(userId, null, (query) =>
+      query<PersonRow>(
+        `select id, email, display_name, title, avatar, status, door
+         from users where id = $1`,
+        [userId],
+      ),
     );
     const person = found.rows[0];
     if (!person) return null;
@@ -105,7 +110,8 @@ export class AccountService {
     userId: string,
     patch: { displayName?: string; status?: string; avatar?: Record<string, unknown> },
   ) {
-    const updated = await this.database.query<PersonRow>(
+    const updated = await this.database.asOffice(userId, null, (query) =>
+      query<PersonRow>(
       `update users
        set display_name = coalesce($2, display_name),
            status = coalesce($3, status),
@@ -119,6 +125,7 @@ export class AccountService {
         patch.status ?? null,
         patch.avatar ? JSON.stringify(patch.avatar) : null,
       ],
+      ),
     );
     const person = updated.rows[0];
     return person ? toPerson(person) : null;

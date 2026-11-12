@@ -34,6 +34,28 @@ export class DatabaseService implements OnModuleDestroy {
     return this.pool.query<T>(text, params);
   }
 
+  /**
+   * Runs office queries as ajar_app, with the person and office fixed for this transaction.
+   * The pool user is a superuser and would bypass row security without the role change.
+   */
+  async asOffice<T>(
+    userId: string,
+    workspaceId: string | null,
+    run: (
+      query: <R extends QueryResultRow = QueryResultRow>(
+        text: string,
+        params?: unknown[],
+      ) => Promise<QueryResult<R>>,
+    ) => Promise<T>,
+  ): Promise<T> {
+    return this.transaction(async (query) => {
+      await query("select set_config('app.user_id', $1, true)", [userId]);
+      await query("select set_config('app.workspace_id', $1, true)", [workspaceId ?? ""]);
+      await query("set local role ajar_app");
+      return run(query);
+    });
+  }
+
   /** Runs the callback in one transaction and rolls it back when the callback throws. */
   async transaction<T>(
     run: (
