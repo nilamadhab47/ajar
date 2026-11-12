@@ -1,9 +1,10 @@
 # Ajar — Roadmap and Differentiators
 
-> What to build next, in order, and where the product can beat Gather. Pairs with
+> What to build next, in order, and where the product can beat a conventional virtual office. Pairs with
 > [PRODUCT_CONTEXT.md](PRODUCT_CONTEXT.md) (what exists), [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) (how) and
 > [BRAND.md](BRAND.md) (why and voice).
 > Sizes: **S** ≤ 2 days · **M** ≤ 1 week · **L** 2–4 weeks (one engineer). Layers: FE / BE / DB / Infra.
+> Updated 12 Nov 2026 from the essentials note: chat, huddles, meetings, calendar and integrations, each with one twist.
 
 ## 0. Positioning decides the order
 
@@ -22,6 +23,15 @@ Guiding rules:
 - **Compete on the quality of the experience, not the number of features.**
 - If a decision is in doubt, choose what makes the office calmer and less intrusive.
 - Sequence for fast learning: prove the knock with **text chat on accept** first, add audio second.
+
+The pitch is the whole door: ask first and closed, the hours that set it, the note an unanswered knock becomes, and that same door on the rest of the workday. Roam and Sococo already let someone knock. A check of a handful of vendor pages did not find this model together.
+
+Chat, huddles, meetings, calendar and integrations are what make a company able to buy Ajar. Each one does the familiar job first, then one twist from these four rules. A feature with no twist ships quietly and is mentioned in one line. Full catalogue: [§7](#7-essentials-our-way).
+
+1. **It obeys the door.** Open, ask first or closed changes how the feature reaches you. A closed door gets nothing live.
+2. **It lives somewhere.** A channel is a room, a decision sits on a wall, a note sits on a desk. People find things by walking.
+3. **It works across time zones.** Every feature has an answer for the person who is asleep.
+4. **It has an off switch.** Closing your door for the day holds every ping until you open it.
 
 ## 1. Signature features (specification)
 
@@ -121,68 +131,66 @@ Lantern states are shown on the nameplate, desk, mini-map and People list. **Nev
 flame, ask first = half-lit with a knocker, closed = unlit, each with an accessible text label. Warm lamp-light
 (`#F4C36B`) is used only for "approachable".
 
+### 1.9 What the essentials reuse
+
+The twists in [§7](#7-essentials-our-way) sit on this model. They do not grow a second way to interrupt someone.
+
+- A stop-by (§1.3) carries handoff items, table notes, written answers, and a seat for someone who was asleep.
+- Message weight **now** is a knock (§1.2). **Whenever** waits. **Today** surfaces in the next open window.
+- Office hours v2 (§1.5) is the calendar setting the door. A manual change wins over the calendar.
+- The away digest (§1.7) is how a handoff arrives. The rule for "closed for the day" and the once-a-day email is still open ([§7](#7-essentials-our-way)).
+- The focus bubble (§1.6) is the quiet huddle and the hold on messages during focus.
+
 ## 2. Remaining work, prioritised
 
-### P0 — Real multiplayer and the knock (month 1–3)
+### Already in the product
 
-Order matters: each step unlocks the next.
+Sign-in is a page: magic link, email and password, Google, and Microsoft. A signed-in person can create a company, invite members and guests, and switch offices. The last owner cannot leave. Office rows stay inside that office. A member can ask for a 60-second floor ticket; the access token stays off the socket address. The gateway that accepts the ticket is not built, and the office in the browser is still the demo. With no API address, the demo opens on its own.
+
+### P0 — Real multiplayer and the knock
+
+Order matters: each step unlocks the next. The mock knock can start beside the gateway.
 
 | # | Feature | Layers | Size | Notes |
 |---|---|---|---|---|
-| 1 | Auth (Google/Microsoft OIDC + magic link), `/users/me`, replace `LOCAL_USER_ID` | FE BE DB | M | `setAuthTokenProvider`, sign-in page |
-| 2 | Workspace + members + invites + roles (owner/admin/member/guest) | FE BE DB | M | Invite links, join flow |
-| 3 | World Gateway v1: one floor actor, join/snapshot/move/stop, presence | BE | L | Go; port `CollisionSystem` + `PathfindingSystem`; 20 Hz. Loose validation only (speed clamp, walls); real purpose is knowing true positions for knocks and audio |
-| 4 | Client handles `player:corrected` + batched `world:tick` | FE | S | |
-| 5 | **Door states + lantern + persisted presence** | FE BE DB | M | `door:set`, `door:updated`, nameplate/minimap/People indicators; default Ask first |
-| 6 | **Mock-mode knock flow** (build the signature feature in the demo first) | FE | M | Demo participants accept, decline, leave notes; replaces today's "Talk" button with **Knock**. Can start now, before any backend |
-| 7 | **Knock + stop-by + text conversation on accept** | FE BE DB | M | Knock events, rate limits, cool-off, stop-by table |
-| 8 | **Notification delivery service** (in-app + email) | BE Infra | M | Needed for stop-bys; digest worker comes later |
-| 9 | **LiveKit audio on accept** + `LiveKitMediaAdapter` | FE BE Infra | L | Hearing set = accepted-conversation members + private zones; mic permission at accept |
-| 10 | Reconnect + resume (position, seat, conversation, pending knocks) | FE BE | S | |
-| 11 | Observability, rate limits, error reporting | BE Infra | S | OTel, Sentry |
+| 1 | World Gateway v1: one floor actor, join/snapshot/move/stop, presence | BE | L | Go; port `CollisionSystem` + `PathfindingSystem`; 20 Hz. Join with the floor ticket, once. Loose validation only (speed clamp, walls); the purpose is true positions for knocks and audio |
+| 2 | Client handles `player:corrected` + batched `world:tick` | FE | S | |
+| 3 | **Door states + lantern + persisted presence** | FE BE DB | M | `door:set`, `door:updated`, nameplate/minimap/People indicators; default Ask first |
+| 4 | **Mock-mode knock flow** (the signature feature in the demo first) | FE | M | Demo participants accept, decline, leave notes; the Nearby card's **Talk** becomes **Knock** |
+| 5 | **Knock + stop-by + text conversation on accept** | FE BE DB | M | Knock events, rate limits, cool-off, stop-by table |
+| 6 | **Notification delivery service** (in-app + email) | BE Infra | M | Needed for stop-bys; the digest worker comes with the async core |
+| 7 | **LiveKit audio on accept** + `LiveKitMediaAdapter` | FE BE Infra | L | Hearing set = accepted-conversation members + private zones; mic permission at accept. Huddles and meetings share this layer |
+| 8 | Reconnect + resume (position, seat, conversation, pending knocks) | FE BE | S | |
+| 9 | Observability, rate limits, error reporting | BE Infra | S | OTel, Sentry |
 
-### P1 — Async, rhythm and what a paying team expects (month 3–6)
+### After the knock — essentials, in order
 
-| Feature | Layers | Size | Notes |
+This is the purchase path. Detail, guardrails and the open questions are in [§7](#7-essentials-our-way). Prototype **the Handoff** and **the agenda is the room** in the demo, with no backend, once the mock knock exists. They are the two clips: lost context, and meetings that did not need to be calls.
+
+| # | Step | What lands | Size |
 |---|---|---|---|
-| **Desk drops v1** (sticky + link, unread badge on desk, replies) | FE BE DB | M | Needs desks persisted |
-| Desks persisted: claim, release, decor, desk manager | FE BE DB | S | One desk per user **per workspace**. First join takes the nearest free desk; later joins return to it. |
-| **While you were away v1** + **email digest** worker | FE BE | M | §1.7 |
-| **Personal office hours v1** + **Focus timer**, time-zone desks | FE BE DB | M | §1.5, §1.6 |
-| Persistent chat: channels, DMs, groups, history, unread, reactions, threads | FE BE DB | M | Cursor pagination |
-| Meetings persisted + room occupancy from server | FE BE DB | M | |
-| Calendar sync (Google + Microsoft 365): auto status, door from busy blocks, reminders | FE BE | L | Webhook subscriptions; worker |
-| **Lite mode** (C): audio-only default, idle 30 fps, sleep when hidden, list view | FE | M | Measure CPU/RAM on low-end laptops |
-| **Small-team office template** (10 people, one cosy room) | FE | S | A 10-person team lost in a 64×40 map feels empty |
-| Knock to enter private rooms; room locks | FE BE | S | Same knock model |
-| Map storage: load from API, versioned drafts, publish; **Tiled import/export** (A) | FE BE DB | M–L | Rooms/desks derived on publish |
-| Notifications: desktop/push, @mentions, waves while tab hidden, quiet mode | FE BE | M | Service worker; respects Closed |
-| Screen share distributed to the conversation/room | FE BE | M | LiveKit screen track |
-| Admin announcement / spotlight | FE BE | S | Permission-gated |
-| Follow / "bring someone to me" with consent requests | FE BE | S | |
-| Character soft collision (personal space) | FE BE | S | Don't block doorways |
-| HiDPI rendering | FE | S | |
-| Accessibility: list view of the office, keyboard "walk to person", captions, reduced-motion mode | FE | M | |
-| File uploads (presigned S3) + previews | FE BE Infra | S | |
-| Slack integration (E) | BE | M | Door/status mirror, digest DM |
-| Billing (Stripe, regional pricing incl. INR) | FE BE | M | |
-| SSO (SAML/OIDC), SCIM, audit export | BE | L | Enterprise |
-| i18n | FE | M | |
+| 1 | **Foundations** | DMs, threads, files, search, and a conversation on each room. One LiveKit layer for huddles and meetings, with screen share, captions, and guest links through reception. Google and Microsoft calendar sync. Lite mode (audio-only default, idle 30 fps, sleep when hidden, list view). The Slack-bridge question in §7 is answered before channel parity is built | L |
+| 2 | **Door-aware delivery** | Held at the door, message weight, time-zone aware send, and closing the door for the day holds pings. Desktop and push notifications follow the same rule | M |
+| 3 | **Async core** | Desks persisted (one desk per person per office). Desk drops v1. The Handoff. Table notes. A seat for the absent. While you were away, delivered by the digest worker | M |
+| 4 | **Meetings our way** | Answer in writing instead. Knock to join late. Listen at the window. Avatars and voice by default, camera on one click. Room locks use the same knock | M |
+| 5 | **Calendar our way** | Office hours v1 and the focus timer can start as soon as doors exist. Then the calendar sets the door, golden hours, the Ajar Hour, fair rotation (private, team-level), and meetings on the map | M |
+| 6 | **Bridge and setup** | Slack bridge, door and status mirrored out, five-minute setup, the 10-person office template. Directory import is opt-in; a desk is assigned when that person joins | M |
+| 7 | **Spatial signatures** | The agenda is the room. Hallway chat and the decision wall. A room owns its conversation (map labels stay labels). Lean in stays off until the open question is answered. Relay huddle, which is the voice drop | L |
+| 8 | **Purchase readiness** | SSO (SAML/OIDC), SCIM, audit export, a written answer on data residency. Mobile: presence, chat, join audio. Onboarding walk. All-hands stage. Captions are already in step 1 | L |
+
+### Still later, and not dropped
+
+Map storage, versioned drafts, publish, and Tiled import/export (differentiator A). Character soft collision, HiDPI, i18n, admin spotlight, follow-with-consent. Billing with regional pricing, including INR, when a pilot is ready to pay. Scale to 500 on a floor, and an events floor, only if a pilot needs it.
 
 ### P2 — Later
 
-Voice drops (v2) and file drops (v3), optional AI summary, full map editor (resize rooms, paint tiles,
-templates), custom asset upload, real floors 2–5, **custom sprite sheets replacing the procedural art** (after
-pilots show retention), scale to 500/floor and events floor (B), integrations beyond Slack/Linear/GitHub, mobile
-PWA polish then native, seasonal decorations, music, pets, dark mode, photo booth, time-of-day lighting.
+Voice drops beyond the relay huddle, file drops (v3), optional AI summary, full map editor (resize rooms, paint tiles, templates), custom asset upload, real floors 2–5, custom sprite sheets after pilots show retention, integrations beyond Slack, Linear, Jira and GitHub, native apps after the mobile slice, seasonal decorations, music, pets, dark mode, photo booth, time-of-day lighting.
 
 ### Deliberately postponed
 
-Advanced AI meeting summaries, a large integration marketplace, multiple fully developed floors, a complex map
-editor, a custom-avatar marketplace, native mobile apps, enterprise analytics, microservices for every backend
-module (start as a modular monolith plus the Go gateway).
+Advanced AI meeting summaries, a large integration marketplace, multiple fully developed floors, a complex map editor, a custom-avatar marketplace, native mobile apps as the first mobile client, enterprise analytics, microservices for every backend module (start as a modular monolith plus the Go gateway). A Slack-depth chat client waits on the open question in §7.
 
-## 3. Gather today (to aim correctly)
+## 3. The field around Ajar
 
 From Gather's own docs and changelog (Nov 2026):
 - **Gather 2.0 ships:** nearby chat, channels and threads; calendar view; casual and focused coworking; music
@@ -198,16 +206,23 @@ From Gather's own docs and changelog (Nov 2026):
   reviews mentioning slowness on older machines, founder moving to Figma with the AI team in early 2026.
   ([SoWork, a competitor](https://www.sowork.com/blog/gather-vs-sowork-active-development-2026))
 
-So: don't compete on "we also have AI notes". Compete on the **interaction model** (consent-first, async),
-where 2.0 stepped back (custom maps, size, integrations, performance) and where nobody is strong (low bandwidth,
-regional pricing, privacy, openness).
+The same check, still a handful of pages and not a full survey:
+
+| Product | Already has | What that means here |
+|---|---|---|
+| [Roam](https://ro.am/drop-in-meetings) | Knock to drop in, locked rooms, AI notes, chat, theatre for large events, Google and Office 365 calendar | Knock, AI notes and big events are already on the market |
+| Sococo | An instant door-knock, rooms per department (via a [SoWork article](https://www.sowork.com/blog/best-virtual-office-for-distributed-teams-2026), itself a competitor) | Same for the knock |
+| [Slack (Feb 2026)](https://slack.com/blog/news/feature-drop-feb26) | Huddles with a join preview, semantic search, an MCP server | Meet Slack in the office; leave channel depth to Slack until pilots say otherwise |
+| SoWork | Slack-like chat, AI summaries, calendar, Slack and GitHub, a free plan (self-reported) | Chat and AI notes on their own do not distinguish Ajar |
+
+Aim at the interaction model: consent first, and an answer for the person who is asleep. Also aim where Gather 2.0 stepped back (custom maps, office size, Slack, Outlook, performance) and where a buyer in a second time zone feels it (low bandwidth, regional pricing, privacy). AI meeting notes are already a category. Privacy-first AI stays optional and off by default.
 
 ## 4. Differentiators vs Gather
 
-Ranked by (edge × feasibility). ★ = first 6 months. **F** and **D** are now the signature features in §1.
+Ranked by (edge × feasibility). ★ = first stretch of the product. **F** and **D** are the signature features in §1. The three twists to explain in one sentence, once they exist, are held at the door, answer in writing instead, and golden hours ([§7](#7-essentials-our-way)).
 
 ### ★ F. Consent-first social design → §1.1, §1.2, §1.6
-The core differentiator. Proximity creates awareness; the other person decides. Specified in §1.
+The core. Proximity creates awareness; the other person decides. Specified in §1. The same door then governs chat, huddles, meetings and the calendar.
 
 ### ★ D. Async presence → §1.3–1.7
 Desk drops, office hours, time-zone desks, "while you were away". Specified in §1. Still to consider later:
@@ -255,16 +270,18 @@ Docker Compose and Helm chart; per-org data region; INR and regional pricing; ge
 Public realtime + REST API, webhook objects, plugin SDK for interactive objects (the `INTERACTIONS` registry
 is already shaped for this).
 
-## 5. Suggested sequencing (first 6 months)
+## 5. Suggested sequencing
 
-| Month | Theme | Deliver |
+Auth, offices and the floor ticket are already behind us. The sequence from here follows §2.
+
+| Phase | Theme | Deliver |
 |---|---|---|
-| 1 | **Real multiplayer + doors** | P0 #1–5: auth, workspaces, gateway, door states and lanterns synced. Mock-mode knock flow (#6) done in parallel. Small-team template. Two browsers see each other and each other's lanterns |
-| 2 | **The knock** | P0 #7, #8, #10: knock, stop-by, text chat on accept, notifications. **Start pilots with 2–3 teams here.** This is the signature loop |
-| 3 | **Talk + leave notes** | P0 #9: audio on accept. P1: desks persisted, **desk drops v1**, email digest, **while you were away v1** |
-| 4 | **Rhythm** | Office hours v1, Focus timer, time-zone desks, persisted DMs, calendar sync, lite mode (C) |
-| 5 | **Own your office + integrations** | Map storage, editor publish, Tiled import (A); Slack (E); voice drops |
-| 6 | **Sell** | Billing with regional pricing, SSO, notifications polish, onboarding quest (H); scale work (B) only if pilots need it |
+| Now | **Doors and the knock** | P0 #1–6 and #8: gateway, synced lanterns, mock knock beside it, then knock, stop-by, text on accept, notifications. Two browsers see each other and each other's lanterns. **Pilots can start on text.** |
+| Next | **Talk, then the note** | P0 #7: audio on accept. Essentials #2 and #3: held messages, desks, desk drops, the Handoff in the demo and then for real, while you were away |
+| Then | **Meetings and the calendar** | Essentials #1's LiveKit layer if it is not already up, then #4 and #5. Office hours and the focus timer as soon as doors exist. Prototype the agenda-room in the demo before building stations on the server |
+| Then | **Beside Slack** | Essentials #6. The 10-person template. Tiled import (A) when a pilot asks to bring their own office |
+| Then | **The spatial twists** | Essentials #7, lean in only after the open question |
+| When a company asks to buy | **The review packet** | Essentials #8. Billing when a pilot is ready to pay. Scale (B) only if a pilot needs it |
 
 ## 6. Success metrics
 
@@ -277,7 +294,141 @@ is already shaped for this).
 **Supporting:** activation (in week 1, moved and had one accepted knock or one drop), time to first meaningful
 interaction, office return frequency, time from accept to first audio (< 800 ms), team-level knock acceptance
 (too low means people feel pestered), unanswered knocks that became stop-bys, knocks sent to people in Focus
-(should be ~0), idle CPU and reconnect success.
+(should be ~0), messages delivered while a door was closed (should be ~0), handoff cards read by the tagged
+person within a day, invites answered in writing, idle CPU and reconnect success.
 
 **Privacy rule:** every behavioural metric is aggregated per team or workspace. No admin view ever shows a
-person's knocks, declines or reply times.
+person's knocks, declines, reply times, or out-of-hours meetings.
+
+## 7. Essentials, our way
+
+12 Nov 2026. The pains below are the ones with public evidence. Every idea answers at least one of them. Sizes match the top of this file.
+
+| Pain | Evidence | What answers it |
+|---|---|---|
+| Interruption overload | Interrupted about every 2 minutes; 153 chat messages and 117 emails a day; 57% of meetings are ad hoc calls with no invite ([Microsoft, 2025](https://news.microsoft.com/de-ch/2025/06/17/new-microsoft-study-reveals-the-rise-of-the-infinite-workday-40-of-employees-check-email-before-6-a-m-evening-meetings-up-16/)) | Door states, held-at-the-door delivery, message weight |
+| Time zones | Nearly a third of meetings span time zones, up 35% since 2021; meetings after 8pm up 16% in a year (Microsoft, 2025) | Golden hours, the Ajar Hour, fair rotation |
+| Lost context at a handoff | With a 6–8 hour gap, a misunderstanding a short call would fix can stall work for a day ([thoughtbot](https://thoughtbot.com/blog/working-across-time-zones-when-async-becomes-the-default)) | The Handoff, decision walls, one-round-trip questions |
+| Can't switch off | 22% name not being able to unplug as their biggest struggle; 81% check email outside work hours ([Buffer, 2023](https://buffer.com/resources/insights-2023-state-of-remote-work/)) | Closing your door for the day holds every ping |
+| Loneliness | 23% list loneliness as a struggle (Buffer, 2023) | Lean in, quiet huddles, the coffee table |
+| Trust with new teammates | Async is weakest at building trust with new people (thoughtbot) | Onboarding walk, a buddy desk, a who's-who wall |
+
+### Chat
+
+Baseline: channels, DMs, groups, threads, reactions, files, search, mentions. The twist is chat that respects the door and survives the gap. The working start is a Slack bridge plus desk drops. Whether Ajar then grows its own channel client is an open question below.
+
+| Idea | What it is | Effort |
+|---|---|---|
+| The Handoff | Closing the door for the day can leave one card: done, blocked, what I need, decisions. The next time zone finds those cards on the desk in their morning | M |
+| Held at the door | A message to someone Closed or in Focus waits. The sender sees when the door opens | S |
+| Message weight | Whenever (default), today, or now. Now is a knock | S |
+| Time-zone aware send | A send during someone's night can offer delivery at their 9am. A group send delivers per person | S |
+| Hallway and wall | Room chat fades after a day. A pinned decision (what, why, alternatives, who) stays on the wall | M |
+| One-round-trip questions | Context, options, your leaning, a deadline. One tap answers. A miss becomes a stop-by | M |
+| Channels are rooms | Walking into a room opens its conversation and shows who is there. A channel can exist with no room. Map labels stay labels, not departments | M |
+
+The Handoff is optional, skippable, and asked once. Items can tag a person; tagged items also become stop-bys. Held messages carry a delivery state and release on `door:updated`. The sender can upgrade a held message to a knock.
+
+### Huddles
+
+Baseline: a short audio call for a few people, with screen share and a text thread. In Ajar it forms where people are standing, so it has a door and a place. A huddle is an accepted conversation with its own door. The LiveKit grant is the members only.
+
+| Idea | What it is | Effort |
+|---|---|---|
+| A huddle has a door | Open means walk in, ask first means knock, closed means private. A sign shows who is in it and an optional topic. Passers-by hear nothing | S |
+| Lean in | At the edge of an open huddle, listen at low volume. Your name shows as listening. Step in to speak. Members can turn listening off. Default off until the open question is answered | M |
+| Quiet huddle | Mics off, a shared 25/45/60 timer, doors Closed for the duration. Working side by side | S |
+| Table note | The last person to leave writes one line. It stays on the table and on the room's wall | S |
+| Relay huddle | A voice thread on a table. Each person adds up to a minute in their own daytime. Playback is in order. Transcript off by default | M |
+
+### Video meetings
+
+Baseline: scheduled video with screen share, recording, chat, captions, guest links, and a stage for all-hands. A meeting is a huddle in a room, with cameras and an agenda. Huddles and meetings share one LiveKit layer.
+
+| Idea | What it is | Effort |
+|---|---|---|
+| The agenda is the room | Each agenda item is a station. The group moves from station to station and pins a decision at each one. A latecomer sees the current station. The notes are the stations and the pins | L |
+| Answer in writing instead | An invite can become a written round: the question, a deadline, one answer each, on the room's wall. It can become a call again if it stalls | M |
+| Listen at the window | An optional attendee follows captions from their desk and knocks if they are needed. Captions only, no audio grant | M |
+| Knock to join late | The knock shows the stations already done and their pins, then the person enters | S |
+| A seat for the absent | Someone who was asleep gets the stations, pins, and a recording as a desk drop in their morning. Recording is optional and consented | S |
+| Avatars by default | The meeting opens on avatars and voice. The camera is one click. The room's lamp dims as time runs out | S |
+
+Still required, with no twist of their own: guest links (guests come through reception), screen share, recording, captions, and a stage room for all-hands.
+
+### Calendar
+
+Baseline: Google and Microsoft 365 sync, upcoming meetings, an automatic "In a meeting" status, reminders.
+
+| Idea | What it is | Effort |
+|---|---|---|
+| The calendar sets your door | A busy block sets Ask first, a focus block sets Closed, free time restores the office-hours door. A manual change wins | M |
+| Golden hours | Scheduling offers slots where working hours and Open doors overlap, and warns when a slot falls in someone's night | M |
+| The Ajar Hour | The team's best daily overlap is protected. No meetings in it by default. Every lantern is Open. It is for knocks and short questions | S |
+| Fair rotation | A private ledger of who took the last out-of-hours call, shown to the organiser when they schedule. Team-level. Never a public score | S |
+| Meetings on the map | Five minutes before, the room lights up and offers "walk me there" | S |
+
+Golden hours are where a meeting may be suggested. The Ajar Hour is the overlap kept for knocks, so the scheduler does not offer it as a meeting slot.
+
+### Integrations and moving in
+
+Baseline: Slack, Google Workspace, Microsoft 365, GitHub, Linear and Jira, and webhooks. Work shows up in the office, and Ajar can sit beside Slack.
+
+| Idea | What it is | Effort |
+|---|---|---|
+| Bridge before a full chat client | Chosen Slack channels mirror into rooms, both ways. Desk drops and handoffs can reach a Slack DM for someone who is not in Ajar yet. `/ajar` shows who is in the office | M |
+| Work on the desk | The current pull request or issue on the desk monitor, the board on the team wall, a deploy or a closed deal on the gong | M each |
+| Five-minute setup | Google or Microsoft sign-in, an office template sized to the team, invites sent. Directory import is opt-in. A desk is assigned when that person joins | M |
+| Status everywhere | The door and status also show in Slack and on the calendar | S |
+
+### What a distributed company needs before it can buy
+
+Must blocks a purchase. Should is expected within a few months of the first paying teams. Later waits.
+
+| Need | Why | Our angle | Priority |
+|---|---|---|---|
+| Google and Microsoft sign-in; SSO later | IT reviews start here. Email and password stay for people without those accounts. Both are already built; SSO is not | — | Must |
+| Dependable audio, video, screen share | The call has to work | Low-bandwidth mode (§4 C) | Must |
+| Guest links | Teams meet clients and candidates | Guests enter through reception | Must |
+| Google and Microsoft calendars | The meetings already live there | The calendar sets the door | Must |
+| Slack bridge | Teams arrive with Slack | Bridge first | Must |
+| Search across chat, walls and drops | People have to find a decision later | Search the walls first | Must |
+| Notifications with a boundary | Most people check mail after hours | Closing the door for the day holds pings | Must |
+| Admin roles, an audit log, a residency answer | The security review | [SYSTEM_DESIGN.md §12.10](SYSTEM_DESIGN.md) | Must |
+| Captions | Accessibility, and people working in a second language | Listen at the window | Must |
+| Mobile: presence, chat, join audio | People leave the desk | — | Should |
+| A first week: a walk, a buddy desk, a who's-who wall | New teammates feel the gap most | The walk is through the office | Should |
+| A coffee table and silent co-working | Loneliness is a named struggle | Quiet huddle; lean in only after it is tested | Should |
+| An all-hands stage | Large meetings keep growing in the Microsoft data | A stage room | Should |
+| A kudos wall and a gong | People teams pay for rituals | The gong is rung by a real event | Later |
+| Billing, with regional prices including INR | Some markets are price-sensitive | — | Later |
+
+### How the page talks about this
+
+The stance stays: a quiet office, presence without pressure. Essentials are named so a buyer knows the workday is covered. A twist is showcased only after it works.
+
+- One compact section, "Everything a workday needs, quieter", listing chat, huddles, meetings, calendar and integrations. Each row is tagged in the demo, in development, or planned.
+- Held at the door, answer in writing instead, and golden hours are the three to lead with, once they exist. Each is one sentence, and the pages we checked did not show them.
+- Lines worth testing, when the feature is real: "Not every hello needs a meeting." "Start the day with a handoff, not a hundred unreads." "One hour where everyone's door is open."
+- The page does not say the knock is unique, and it does not say AI notes are new. It does not show a control the demo cannot do.
+
+The second and third lines are candidates for [BRAND.md](BRAND.md). They stay off the brand lockup until the feature exists. "Not every hello needs a meeting" is already the campaign line.
+
+### Open questions
+
+- [ ] Build our own channel client, or ship the Slack bridge and decide after pilots? Until that is answered, step 1 in §2 persists DMs, room conversations, files and search, and does not chase Slack parity.
+- [ ] Is the Handoff prompt welcome at the end of the day, or another chore? Test it with the pilot teams. A likely shape, if the prompt feels heavy: the card is filled from the day Ajar already saw, and the person confirms it.
+- [ ] Closing the door for the day holds every ping. The away digest also wants one email when someone has not opened Ajar. Those two rules have to become one rule before the digest worker is built.
+- [ ] Lean in: overhearing, or eavesdropping? It stays off, and off the page, until a pilot says otherwise.
+- [ ] Recording consent, per region, before "a seat for the absent" includes a recording.
+- [ ] Is door-aware chat priced in place of a Slack seat, or as an add-on beside it?
+- [ ] A deeper pass on Roam, Sococo, Teamflow and Kumospace before any sentence that says only Ajar does something.
+
+### Sources
+
+- [Microsoft Work Trend Index special report, June 2025](https://news.microsoft.com/de-ch/2025/06/17/new-microsoft-study-reveals-the-rise-of-the-infinite-workday-40-of-employees-check-email-before-6-a-m-evening-meetings-up-16/)
+- [Buffer, State of Remote Work 2023](https://buffer.com/resources/insights-2023-state-of-remote-work/)
+- [thoughtbot, Working across time zones](https://thoughtbot.com/blog/working-across-time-zones-when-async-becomes-the-default)
+- [Roam, Drop-In Meetings](https://ro.am/drop-in-meetings)
+- [Slack feature drop, February 2026](https://slack.com/blog/news/feature-drop-feb26)
+- [SoWork, best virtual offices for distributed teams 2026](https://www.sowork.com/blog/best-virtual-office-for-distributed-teams-2026) (published by a competitor)
