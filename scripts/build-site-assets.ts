@@ -3,24 +3,28 @@
  *
  *   npm run site-assets
  *
- * Reads   Office_Pixel_Art_Premium_v1.0/   (git-ignored, never modified)
- * Writes  public/assets/imersa/            (git-ignored, must be present when deploying)
+ * Reads   ../Office_Pixel_Art_Premium_v1.0/   (beside this repository, never modified)
+ *          or the path in AJAR_ART_PACK
+ * Writes  public/assets/imersa/               (git-ignored, must be present when deploying)
  *
  * The pack is a neutral grey office. Ajar's world is warm and dusky, so every pixel goes through
  * one colour grade here (the licence allows recolouring). Originals stay untouched.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { PNG } from "pngjs";
 
-const PACK = "Office_Pixel_Art_Premium_v1.0";
+const PACK_NAME = "Office_Pixel_Art_Premium_v1.0";
+const PACK = process.env.AJAR_ART_PACK ? resolve(process.env.AJAR_ART_PACK) : join("..", PACK_NAME);
 const OUT = "public/assets/imersa";
 const ROOM = join(PACK, "Rooms", "Office_Showcase");
 const CELL = 16; // collision cell, half a tile
 const CHARACTERS = ["developer", "office_lady", "office_worker", "manager", "receptionist"] as const;
 
 if (!existsSync(PACK)) {
-  console.error(`\n${PACK}/ not found.\nCopy the purchased pack to the repository root (it is git-ignored) and run this again.\n`);
+  console.error(
+    `\n${PACK_NAME}/ not found at ${resolve(PACK)}.\nPut the purchased pack next to this repository, not inside it, and run this again.\nOr set AJAR_ART_PACK to the pack's path. A copy placed in the repository stays git-ignored.\n`,
+  );
   process.exit(1);
 }
 mkdirSync(OUT, { recursive: true });

@@ -52,9 +52,10 @@ stack; no font files are bundled.
 
 ## Purchased pack (used by the landing page only)
 
-`Office_Pixel_Art_Premium_v1.0/` is Office Pixel Art Premium v1.0 by Imersa Studios (32×32, top-down 3/4).
-The license allows use inside this app, including edits. It forbids reselling or redistributing the files
-themselves, and forbids AI training. The folder is gitignored. Credit, if shown: "Office Pixel Art by Imersa Studios".
+`Office_Pixel_Art_Premium_v1.0` is Office Pixel Art Premium v1.0 by Imersa Studios (32×32, top-down 3/4).
+It lives beside this repository, not inside it. The license allows use inside this app, including edits. It
+forbids reselling or redistributing the files themselves, and forbids AI training. A copy placed in the
+repository stays gitignored. Credit, if shown: "Office Pixel Art by Imersa Studios".
 
 It contains 12 floor tiles, modular walls, 77 props with anchors and footprints, 7 Tiled rooms, and 5 characters
 (idle and walk, four directions). Character frames are 32×32 with feet at pixel (16, 30). Ajar's people are a
