@@ -18,7 +18,8 @@ export type DialogState =
   | { type: "floors"; via: "elevator" | "stairs" | "default" }
   | { type: "settings" }
   | { type: "help" }
-  | { type: "note"; userId: string };
+  | { type: "note"; userId: string }
+  | { type: "labels" };
 
 export interface Toast {
   id: string;
