@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
+import { officeName } from "../account/account-input";
 import { AuthService } from "./auth.service";
 import {
   clearRefreshCookie,
@@ -34,17 +35,18 @@ export class AuthController {
     return { ok: true };
   }
 
-  /** Accepts an email and password. A new address and an existing address get the same body. */
+  /** Accepts a name, email, and password. A new address and an existing address get the same body. */
   @Post("password/sign-up")
   @HttpCode(200)
   async signUp(
-    @Body() body: { email?: unknown; password?: unknown },
+    @Body() body: { displayName?: unknown; email?: unknown; password?: unknown },
     @Req() request: Request,
   ) {
-    if (typeof body?.email !== "string" || !isEmail(body.email) || !isPassword(body.password)) {
+    const name = officeName(body?.displayName);
+    if (!name || typeof body?.email !== "string" || !isEmail(body.email) || !isPassword(body.password)) {
       throw new BadRequestException({ ok: false });
     }
-    await this.auth.requestPasswordSignUp(body.email, body.password, clientKey(request));
+    await this.auth.requestPasswordSignUp(body.email, body.password, clientKey(request), name);
     return { ok: true };
   }
 

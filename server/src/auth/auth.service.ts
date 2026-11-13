@@ -80,13 +80,17 @@ export class AuthService implements OnModuleInit {
   async consumeMagicLink(token: string, userAgent: string | undefined): Promise<SessionGrant> {
     const secret = this.jwtSecret();
     return this.database.transaction(async (query) => {
-      const link = await query<{ email: string; password_hash: string | null }>(
+      const link = await query<{
+        email: string;
+        password_hash: string | null;
+        display_name: string | null;
+      }>(
         `update magic_links
          set used_at = now()
          where token_hash = $1
            and used_at is null
            and expires_at > now()
-         returning email, password_hash`,
+         returning email, password_hash, display_name`,
         [tokenHash(token)],
       );
       const email = link.rows[0]?.email;
@@ -97,7 +101,7 @@ export class AuthService implements OnModuleInit {
          values ($1, $2)
          on conflict (email) do update set email = users.email
          returning id`,
-        [email, displayNameFromEmail(email)],
+        [email, chosenName(link.rows[0]?.display_name, email)],
       );
       const userId = user.rows[0]?.id;
       if (!userId) throw new UnauthorizedException({ ok: false });
@@ -118,7 +122,12 @@ export class AuthService implements OnModuleInit {
   }
 
   /** Sends a confirmation link for a new person. An existing address gets the same response and a different email. */
-  async requestPasswordSignUp(email: string, password: string, clientKey: string): Promise<void> {
+  async requestPasswordSignUp(
+    email: string,
+    password: string,
+    clientKey: string,
+    displayName: string,
+  ): Promise<void> {
     const normalized = email.trim().toLowerCase();
     if (
       !this.limits.allow(`password-ip:${clientKey}`) ||
@@ -140,9 +149,9 @@ export class AuthService implements OnModuleInit {
     const token = randomToken();
     await this.forgetExpiredLinks();
     await this.database.query(
-      `insert into magic_links (email, token_hash, expires_at, password_hash)
-       values ($1, $2, now() + interval '15 minutes', $3)`,
-      [normalized, tokenHash(token), passwordHash],
+      `insert into magic_links (email, token_hash, expires_at, password_hash, display_name)
+       values ($1, $2, now() + interval '15 minutes', $3, $4)`,
+      [normalized, tokenHash(token), passwordHash, displayName],
     );
     const origin = this.config.get<string>("APP_ORIGIN") ?? "http://localhost:3000";
     await this.sendQuietly(normalized, buildPasswordConfirmMessage(origin, token));
@@ -321,6 +330,13 @@ export class AuthService implements OnModuleInit {
     }
     return secret;
   }
+}
+
+/** Uses the name from sign-up, or the mailbox name when the link has none. */
+function chosenName(displayName: string | null | undefined, email: string): string {
+  const name = displayName?.trim().replace(/\s+/g, " ");
+  if (name && name.length <= 80) return name;
+  return displayNameFromEmail(email);
 }
 
 /** Uses the mailbox name as a first display name. */

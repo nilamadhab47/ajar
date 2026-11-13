@@ -20,6 +20,7 @@ import { AuthShell, authInputClass } from "./auth-shell";
 export function SignInPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [creating, setCreating] = useState(false);
@@ -82,7 +83,13 @@ export function SignInPage() {
     setBusy(true);
     setMessage(null);
     if (creating) {
-      const ok = await requestPasswordSignUp(email.trim(), password);
+      const displayName = name.trim().replace(/\s+/g, " ");
+      if (!displayName) {
+        setBusy(false);
+        setMessage("Add your name.");
+        return;
+      }
+      const ok = await requestPasswordSignUp(email.trim(), password, displayName);
       setBusy(false);
       setMessage(ok ? "Check your email to finish creating the account. The link works once." : "The account email could not be sent.");
       return;
@@ -116,6 +123,12 @@ export function SignInPage() {
         <Button variant="primary" type="submit" disabled={busy}>Email me a sign-in link</Button>
       </form>
       <form className="mt-6 space-y-3 border-t border-line pt-5" onSubmit={(event) => { event.preventDefault(); void submitPassword(); }}>
+        {creating && (
+          <>
+            <label className="block text-xs font-medium" htmlFor="sign-up-name">Your name</label>
+            <input id="sign-up-name" autoComplete="name" required maxLength={80} value={name} onChange={(event) => setName(event.target.value)} className={authInputClass} />
+          </>
+        )}
         <label className="block text-xs font-medium" htmlFor="sign-in-password">Password</label>
         <input id="sign-in-password" type="password" autoComplete={creating ? "new-password" : "current-password"} required minLength={10} maxLength={128} value={password} onChange={(event) => setPassword(event.target.value)} className={authInputClass} />
         <Button variant="secondary" type="submit" disabled={busy}>{creating ? "Create account" : "Sign in with a password"}</Button>

@@ -93,8 +93,8 @@ export async function signInWithPassword(email: string, password: string): Promi
 }
 
 /** Asks for a confirmation email. The person is created when that link is used. */
-export async function requestPasswordSignUp(email: string, password: string): Promise<boolean> {
-  const result = await authPost("/auth/password/sign-up", { email, password });
+export async function requestPasswordSignUp(email: string, password: string, displayName: string): Promise<boolean> {
+  const result = await authPost("/auth/password/sign-up", { email, password, displayName });
   return result.ok;
 }
 

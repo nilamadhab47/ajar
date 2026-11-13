@@ -32,7 +32,7 @@ wide open.
 | Layer | State |
 |---|---|
 | Frontend | **Built and playable.** Next.js + Phaser. Typecheck, lint and production build pass. |
-| Backend | **Sign-in is a page.** `/login` covers the magic link, password, Google, and Microsoft. `/invite` accepts an invitation. `/offices` lists the offices that person belongs to. A member can ask for a 60-second floor ticket. The access token stays off the socket address. With no API address, the demo office still opens on its own. |
+| Backend | **Sign-in is a page.** Creating an account asks for a name, an email, and a password, then a one-time confirmation link. The magic link, Google, and Microsoft stay. After that link, the person lands on the company step. `/invite` accepts an invitation. `/offices` lists the offices that person belongs to. A member can ask for a 60-second floor ticket. The access token stays off the socket address. With no API address, the demo office still opens on its own. |
 | Database | **Row security is on for office tables.** The API user is a superuser, so office queries switch to `ajar_app` for the transaction. The app still persists in this browser under `ajar.` keys. |
 | Audio/video | Local capture + preview only. No transport. UI labels conversations **Simulated**. Phaser audio is off. |
 | Art | Original, procedurally generated from code (`src/art`). Starter quality, replaceable. |
