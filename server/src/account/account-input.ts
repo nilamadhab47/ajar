@@ -8,11 +8,26 @@ const statuses = new Set([
   "offline",
 ]);
 
-/** Trims a company or office name and rejects an empty one. */
-export function officeName(value: unknown): string | null {
+/** Trims one line and rejects an empty value or one past the limit. */
+export function oneLine(value: unknown, max: number): string | null {
   if (typeof value !== "string") return null;
   const name = value.trim().replace(/\s+/g, " ");
-  if (name.length < 1 || name.length > 80) return null;
+  if (name.length < 1 || name.length > max) return null;
+  return name;
+}
+
+/** Trims a company or office name and rejects an empty one. */
+export function officeName(value: unknown): string | null {
+  return oneLine(value, 80);
+}
+
+/** A blank line is absent. A line past the limit is rejected. */
+export function optionalLine(value: unknown, max: number): string | null | undefined {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "string") return undefined;
+  const name = value.trim().replace(/\s+/g, " ");
+  if (!name) return null;
+  if (name.length > max) return undefined;
   return name;
 }
 
