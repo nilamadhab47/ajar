@@ -1,5 +1,6 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { DatabaseService } from "../database/database.service";
+import { deskChoice } from "./desks";
 
 type PersonRow = {
   id: string;
@@ -15,9 +16,20 @@ type OfficeRow = {
   id: string;
   name: string;
   office_name: string;
+  description: string | null;
   organization_id: string;
   organization_name: string;
   role: string;
+  title: string | null;
+  department: string | null;
+  desk_id: string | null;
+};
+
+type Placement = {
+  description?: string | null;
+  title?: string | null;
+  department?: string | null;
+  deskId?: string | null;
 };
 
 /** A person, the companies they create, and the offices they belong to. */
@@ -26,7 +38,14 @@ export class AccountService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) {}
 
   /** Creates a company, its first office and floor, and makes the caller the owner. */
-  async createOrganization(userId: string, companyName: string, officeName: string) {
+  async createOrganization(
+    userId: string,
+    companyName: string,
+    officeName: string,
+    placement: Placement = {},
+  ) {
+    const deskId = deskChoice(placement.deskId ?? "", new Set());
+    if (!deskId) throw new BadRequestException({ ok: false });
     return this.database.asOffice(userId, null, async (query) => {
       const ids = await query<{ organization_id: string; office_id: string; floor_id: string }>(
         "select uuidv7() as organization_id, uuidv7() as office_id, uuidv7() as floor_id",
@@ -41,16 +60,22 @@ export class AccountService {
         companyName,
       ]);
       await query(
-        `insert into workspaces (id, organization_id, name, office_name)
-         values ($1, $2, $3, $3)`,
-        [officeId, organizationId, officeName],
+        `insert into workspaces (id, organization_id, name, office_name, description)
+         values ($1, $2, $3, $3, $4)`,
+        [officeId, organizationId, officeName, placement.description ?? null],
       );
 
       await query(
-        `insert into workspace_members (workspace_id, user_id, role)
-         values ($1, $2, 'owner')`,
-        [officeId, userId],
+        `insert into workspace_members (workspace_id, user_id, role, title, department, desk_id)
+         values ($1, $2, 'owner', $3, $4, $5)`,
+        [officeId, userId, placement.title ?? null, placement.department ?? null, deskId],
       );
+      if (placement.title) {
+        await query("update users set title = $2, updated_at = now() where id = $1", [
+          userId,
+          placement.title,
+        ]);
+      }
       await query("insert into floors (id, workspace_id, name) values ($1, $2, $3)", [
         floorId,
         officeId,
@@ -68,7 +93,11 @@ export class AccountService {
           id: officeId,
           name: officeName,
           officeName,
+          description: placement.description ?? null,
           role: "owner",
+          title: placement.title ?? null,
+          department: placement.department ?? null,
+          deskId,
         },
       };
     });
@@ -78,7 +107,8 @@ export class AccountService {
   async listOffices(userId: string) {
     const rows = await this.database.asOffice(userId, null, (query) =>
       query<OfficeRow>(
-      `select w.id, w.name, w.office_name, w.organization_id, o.name as organization_name, m.role
+      `select w.id, w.name, w.office_name, w.description, w.organization_id,
+              o.name as organization_name, m.role, m.title, m.department, m.desk_id
        from workspace_members m
        join workspaces w on w.id = m.workspace_id
        join organizations o on o.id = w.organization_id
@@ -91,7 +121,11 @@ export class AccountService {
       id: row.id,
       name: row.name,
       officeName: row.office_name,
+      description: row.description,
       role: row.role,
+      title: row.title,
+      department: row.department,
+      deskId: row.desk_id,
       organizationId: row.organization_id,
       organizationName: row.organization_name,
     }));

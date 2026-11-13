@@ -10,7 +10,8 @@ import {
 } from "@nestjs/common";
 import type { Request } from "express";
 import { CurrentUserService } from "../auth/current-user";
-import { avatarPatch, doorState, officeName, presenceStatus } from "./account-input";
+import { avatarPatch, doorState, officeName, oneLine, optionalLine, presenceStatus } from "./account-input";
+import { deskChoice } from "./desks";
 import { AccountService } from "./account.service";
 
 /** The signed-in person and the offices they belong to. */
@@ -25,14 +26,31 @@ export class AccountController {
   @Post("organizations")
   async createOrganization(
     @Req() request: Request,
-    @Body() body: { name?: unknown; officeName?: unknown },
+    @Body() body: {
+      name?: unknown;
+      officeName?: unknown;
+      description?: unknown;
+      title?: unknown;
+      department?: unknown;
+      deskId?: unknown;
+    },
   ) {
     const person = await this.current.require(request);
     const company = officeName(body?.name);
-    if (!company) throw new BadRequestException({ ok: false });
     const office = body?.officeName === undefined ? company : officeName(body.officeName);
-    if (!office) throw new BadRequestException({ ok: false });
-    return this.accounts.createOrganization(person.id, company, office);
+    const title = oneLine(body?.title, 40);
+    const department = oneLine(body?.department, 40);
+    const description = optionalLine(body?.description, 140);
+    const deskId = deskChoice(body?.deskId, new Set());
+    if (!company || !office || !title || !department || description === undefined || !deskId) {
+      throw new BadRequestException({ ok: false });
+    }
+    return this.accounts.createOrganization(person.id, company, office, {
+      description,
+      title,
+      department,
+      deskId,
+    });
   }
 
   /** Lists offices for the signed-in person, including the role in each one. */
