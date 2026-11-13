@@ -16,6 +16,12 @@ export const DEMO_FLOORS: Floor[] = [
   floor(5, "Recreation", "/maps/floor-5.json", 30, 20, false),
 ];
 
+/** The floor, with nobody else in it. The seeded cast in this file is not shown. */
+export const OFFICE_WORKSPACE: Workspace = {
+  id: "office", name: "Ajar", officeName: "Ajar", logo: null, activeFloorId: "floor-1",
+  members: [LOCAL_USER_ID], floors: DEMO_FLOORS,
+};
+
 export const DEMO_WORKSPACE: Workspace = {
   id: "demo", name: "Cruit", officeName: "Ajar", logo: "/brand/cruit-icon-filled.png", activeFloorId: "floor-1",
   members: [LOCAL_USER_ID, ...DEMO_PARTICIPANTS.map((p) => p.user.id)], floors: DEMO_FLOORS,

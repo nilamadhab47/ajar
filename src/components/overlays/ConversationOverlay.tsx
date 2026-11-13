@@ -39,7 +39,7 @@ function Tile({ user, joined, large }: { user: User; joined: boolean; large: boo
       <AvatarImage avatar={user.avatar} size={large ? 56 : 28} />
       <div className="min-w-0">
         <p className="flex items-center gap-1.5 truncate text-[13px] font-medium leading-tight"><StatusDot status={user.status} className="size-2" />{firstName(user.displayName)}</p>
-        <p className="text-[11px] leading-tight text-muted">{joined ? "Joined · no media in demo" : "Connecting…"}</p>
+        <p className="text-[11px] leading-tight text-muted">{joined ? "Joined · no audio yet" : "Connecting…"}</p>
       </div>
     </div>
   );

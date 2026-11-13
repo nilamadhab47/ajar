@@ -33,10 +33,7 @@ export function OfficesPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!env.apiBaseUrl) {
-      router.replace("/workspace/demo/office");
-      return;
-    }
+    if (!env.apiBaseUrl) return;
     void load();
   }, [router]);
 
@@ -80,7 +77,7 @@ export function OfficesPage() {
     return (
       <AuthShell>
         <h1 className="text-xl font-semibold">Your offices</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted">Opening the demo office…</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">Sign-in starts when an API address is set.</p>
       </AuthShell>
     );
   }

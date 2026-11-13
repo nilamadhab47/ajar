@@ -145,7 +145,7 @@ The twists in [§7](#7-essentials-our-way) sit on this model. They do not grow a
 
 ### Already in the product
 
-Sign-in is a page: magic link, email and password, Google, and Microsoft. A signed-in person can create a company, invite members and guests, and switch offices. The last owner cannot leave. Office rows stay inside that office. A member can ask for a 60-second floor ticket; the access token stays off the socket address. The gateway that accepts the ticket is not built, and the office in the browser is still the demo. With no API address, the demo opens on its own.
+Sign-in is a page: magic link, email and password, Google, and Microsoft. A signed-in person can create a company, invite members and guests, and switch offices. The last owner cannot leave. Office rows stay inside that office. A member can ask for a 60-second floor ticket; the access token stays off the socket address. The gateway that accepts the ticket is not built, so the floor still runs in the browser. It does not fill with simulated people. With no API address, sign-in waits.
 
 ### P0 — Real multiplayer and the knock
 

@@ -32,13 +32,13 @@ wide open.
 | Layer | State |
 |---|---|
 | Frontend | **Built and playable.** Next.js + Phaser. Typecheck, lint and production build pass. |
-| Backend | **Sign-in is a page.** Creating an account asks for a name, an email, and a password, then a one-time confirmation link. The magic link, Google, and Microsoft stay. After that link, the person lands on the company step. That step asks for the company, the office, a one-line description, and the owner's designation, department, and desk. An empty desk takes the nearest free one. `/invite` accepts an invitation. `/offices` lists the offices that person belongs to. A member can ask for a 60-second floor ticket. The access token stays off the socket address. With no API address, the demo office still opens on its own. Transactional mail uses the shared layout and is sent from hello@meetajar.com when Resend is configured. |
+| Backend | **Sign-in is a page.** Creating an account asks for a name, an email, and a password, then a one-time confirmation link. The magic link, Google, and Microsoft stay. After that link, the person lands on the company step. That step asks for the company, the office, a one-line description, and the owner's designation, department, and desk. An empty desk takes the nearest free one. `/invite` accepts an invitation. `/offices` lists the offices that person belongs to. A member can ask for a 60-second floor ticket. The access token stays off the socket address. With no API address, sign-in waits. The office floor does not fill with simulated people. Transactional mail uses the shared layout and is sent from hello@meetajar.com when Resend is configured. |
 | Database | **Row security is on for office tables.** The API user is a superuser, so office queries switch to `ajar_app` for the transaction. The app still persists in this browser under `ajar.` keys. |
 | Audio/video | Local capture + preview only. No transport. UI labels conversations **Simulated**. Phaser audio is off. |
 | Art | Original, procedurally generated from code (`src/art`). Starter quality, replaceable. |
 
-Run: `npm install && npm run dev` → `http://localhost:3000` is the marketing landing page; `/demo` (→
-`/workspace/demo/office`) is the office. The landing page is documented in [SITE.md](SITE.md) and needs
+Run: `npm install && npm run dev` → `http://localhost:3000` is the marketing landing page; `/demo` goes to
+sign-in. The landing page is documented in [SITE.md](SITE.md) and needs
 `npm run site-assets` once. The purchased pack sits beside the repository, not inside it.
 
 ## 3. Tech stack
@@ -105,7 +105,7 @@ elevator, stairs.
 - Bottom toolbar: mic, camera, screen share, status, emotes, avatar actions, zoom, recenter, leave.
 - Mini-map: rooms, players (nearby highlighted), camera rectangle, click/drag to pan, floor switcher, collapsible.
 - Dialogs: onboarding, avatar builder, profile, desk, room, meeting view, whiteboard, floors, settings
-  (shortcut rebinding, edit mode, integration info, simulate network drop, reset demo), help, leave.
+  (shortcut rebinding, edit mode, integration info, simulate network drop, reset saved data), help, leave.
 - Lobby page (`/workspace/[id]`) after leaving.
 - Toast notifications with actions; activity log.
 
@@ -123,10 +123,8 @@ real screen-capture preview, participants/chat tabs, duration.
 Available, Busy, Focus, In a meeting, Away, Do not disturb, Offline + status emoji; shown in nameplates,
 People panel, profiles, conversation UI.
 
-### Demo mode (mock backend)
-14 seeded participants (always tagged **Demo**) with routines: desk workers who take breaks, a meeting group in
-Atlas Room, a lounge group, a receptionist, a coffee-break wanderer. They walk with real A*, change status,
-post channel messages, auto-reply to DMs, wave back, join simulated conversations.
+### Office floor
+The starter floor still loads from the map. Simulated colleagues, demo chat, and the Demo mode label are not shown.
 
 ### Edit mode (developer)
 Toggle in Settings: select, drag on grid, remove, add from palette, revert. Publish is disabled (needs backend).
@@ -178,7 +176,6 @@ public/assets, public/maps       GENERATED — do not hand-edit
 6. **Art is generated.** Edit `src/art/*` or `compose-avatar.ts`, then `npm run assets`. Output is deterministic.
 7. **Domain types don't import Phaser or React** (`src/types/domain.ts`, `features/world/types`).
 8. **Never fake media.** Media state comes from `MediaAdapter`. Don't show "connected" unless transport is real.
-   Demo participants must always be labelled Demo.
 9. **Every visible button works or is disabled with a reason** (tooltip `hint`).
 10. **Tunables live in `WORLD_CONFIG`** (`src/lib/config.ts`): speeds, radii, zoom levels, network Hz, bubble time.
 11. **Persisted keys** are `ajar.profile`, `ajar.avatar`, `ajar.desk`, `ajar.ui`. `migrateLegacyStorage()` copies a

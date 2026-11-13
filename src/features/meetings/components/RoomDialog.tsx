@@ -68,7 +68,7 @@ export function RoomDialog({ roomId }: { roomId: string }) {
           </div>
         ) : (
           <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); meetingActions.start(title.trim() || `${room.name} meeting`, "meeting", room.id); }}>
-            <label className="block text-xs font-medium" htmlFor="room-meeting-title">Start a demo meeting here</label>
+            <label className="block text-xs font-medium" htmlFor="room-meeting-title">Start a meeting here</label>
             <div className="flex gap-2">
               <input id="room-meeting-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={`${room.name} meeting`} maxLength={60}
                 className="h-9 min-w-0 flex-1 rounded-md border border-line bg-app px-2.5 text-sm focus:border-accent focus:bg-panel focus:outline-none" />

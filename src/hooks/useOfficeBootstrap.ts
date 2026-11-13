@@ -129,8 +129,12 @@ export function useOfficeBootstrap(workspaceId: string): void {
         useAppStore.getState().set({ workspace });
         if (env.apiBaseUrl) {
           try {
-            const listed = await apiRequest<{ offices: { id: string; title: string | null; deskId: string | null }[] }>("/workspaces");
+            const listed = await apiRequest<{ offices: { id: string; organizationName: string; officeName: string; title: string | null; deskId: string | null }[] }>("/workspaces");
             const mine = listed.offices.find((office) => office.id === workspaceId);
+            if (!cancelled && mine) {
+              const current = useAppStore.getState().workspace;
+              if (current) useAppStore.getState().set({ workspace: { ...current, name: mine.organizationName, officeName: mine.officeName, logo: null } });
+            }
             if (!cancelled && mine?.deskId) useDeskStore.getState().claim(mine.deskId);
             if (!cancelled && mine?.title) useProfileStore.setState({ title: mine.title });
           } catch {

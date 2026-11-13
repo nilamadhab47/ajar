@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** The full interactive office is the existing app in demo mode. `/demo` is its public, memorable address. */
+/** Older links to the demo office now come in through sign-in. */
 export default function DemoPage() {
-  redirect("/workspace/demo/office");
+  redirect("/login");
 }

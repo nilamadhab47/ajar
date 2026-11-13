@@ -15,8 +15,8 @@ export function LivingWorld() {
           </Reveal>
           <Reveal delay={120}>
             <p className="lede text-ivory/75">
-              This is a small Ajar office, running in your browser right now. The people in it are simulated and
-              labelled Demo. Walk up to someone and knock. Find the empty desk and leave a note for the morning.
+              This is a small Ajar office, running in your browser right now. Walk up to someone and knock.
+              Find the empty desk and leave a note for the morning.
             </p>
           </Reveal>
         </div>

@@ -66,8 +66,8 @@ The bitmaps in `public/assets` are still the generated starter art.
 
 ## Names
 
-The product name is **Ajar** (`BRAND` in `src/lib/config.ts`). The demo company is **Cruit**
-(`src/data/demo-workspace.ts`). The in-world welcome sign reads AJAR. Check trademark availability before launch;
+The product name is **Ajar** (`BRAND` in `src/lib/config.ts`). A company keeps its own name.
+The in-world welcome sign reads AJAR. Check trademark availability before launch;
 see [BRAND.md](BRAND.md).
 
 ## Marketing site

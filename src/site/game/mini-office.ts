@@ -162,7 +162,7 @@ class Plate {
   private label: Phaser.GameObjects.Text;
   private tag: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, font: string, name: string, private door: Door | null, private extra = "Demo") {
+  constructor(scene: Phaser.Scene, font: string, name: string, private door: Door | null, private extra = "") {
     const resolution = Math.max(2, Math.ceil(window.devicePixelRatio || 1));
     this.bg = scene.add.graphics();
     this.label = scene.add.text(0, 0, name, { fontFamily: font, fontSize: "11px", fontStyle: "600", color: "#F7F3EC", resolution }).setOrigin(0, 0.5);
@@ -307,7 +307,7 @@ class MiniScene extends Phaser.Scene {
 
     for (const def of PEOPLE) {
       const actor = new Actor(this, def.sprite, def.x, def.y, def.facing);
-      const plate = new Plate(this, this.opts.uiFont, def.name, def.door, def.note ? `Demo · ${def.note}` : "Demo");
+      const plate = new Plate(this, this.opts.uiFont, def.name, def.door, def.note ?? "");
       this.people.push({ def, actor, plate, door: def.door, patrolIndex: 0, waitUntil: 2500 });
     }
     this.hana = { actor: null, plate: new Plate(this, this.opts.uiFont, "Zenno's desk", "closed", "Away · 2:10 am"), state: "away" };
@@ -641,7 +641,7 @@ class MiniScene extends Phaser.Scene {
       const actor = new Actor(this, HANA.sprite, HANA.enter.x, HANA.enter.y, "up");
       hana.actor = actor;
       hana.plate.destroy();
-      hana.plate = new Plate(this, this.opts.uiFont, "Zenno", "open", "Demo · 9:02 am");
+      hana.plate = new Plate(this, this.opts.uiFont, "Zenno", "open", "9:02 am");
       actor.path = this.pathBetween(actor, HANA.desk) ?? [HANA.desk];
       this.emit({ type: "sfx", name: "footsteps" });
       actor.onArrive = () => {

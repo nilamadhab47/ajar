@@ -6,12 +6,10 @@ import { AvatarPreview } from "@/components/common/AvatarImage";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { DEMO_WORKSPACE } from "@/data/demo-workspace";
 import { useAvatarStore } from "@/features/avatar/avatar-store";
 import { AvatarEditor } from "@/features/avatar/components/AvatarEditor";
 import { useProfileStore } from "@/features/presence/presence-store";
 import { BRAND } from "@/lib/config";
-import { isMockMode } from "@/lib/env";
 import { Logo } from "./TopNavigation";
 
 /** Where you land after leaving the office: adjust your character, then step back in. */
@@ -32,7 +30,7 @@ export function Lobby({ workspaceId }: { workspaceId: string }) {
           </div>
           <h1 className="mt-4 text-lg font-semibold">{onboarded ? `See you soon, ${name}` : "Welcome"}</h1>
           <p className="mt-1 text-sm text-muted">
-            {onboarded ? "You've left" : "You're about to enter"} {DEMO_WORKSPACE.officeName}.{isMockMode ? " This is a demo workspace with simulated colleagues." : ""}
+            {onboarded ? "You've left the office." : "You're about to enter the office."}
           </p>
           <div className="mt-5 grid gap-2">
             <Link href={office} className="inline-flex h-10 items-center justify-center rounded-md bg-accent text-sm font-medium text-white hover:bg-accent-strong">

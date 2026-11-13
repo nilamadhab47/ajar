@@ -102,7 +102,6 @@ export function PeoplePanel() {
         {visible.map((u) => <PersonRow key={u.id} user={u} location={roomName(u.id)} activity={presence[u.id]?.currentActivity ?? null} />)}
         {visible.length === 0 && <EmptyState title="Nobody matches" hint={q ? `No participant named “${query.trim()}” in this filter.` : "Try a different filter."} />}
       </ul>
-      <p className="border-t border-line px-3 py-2 text-[11px] text-muted">Participants marked Demo are simulated locally and are not real people.</p>
     </div>
   );
 }

@@ -291,7 +291,7 @@ export function MiniOffice() {
           ) : conversation ? (
             <div className="w-full max-w-md rounded-3xl bg-ivory p-4 text-night shadow-2xl" role="log" aria-live="polite">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[0.95rem] font-semibold">With {conversation.name} <span className="font-normal text-evening">· Demo</span></p>
+                <p className="text-[0.95rem] font-semibold">With {conversation.name}</p>
                 <button type="button" className="btn btn-ink !min-h-9 !px-3.5 !text-[0.82rem]" onClick={() => apiRef.current?.leaveConversation()}>Leave</button>
               </div>
               <ul className="mt-2 space-y-1.5">
@@ -360,8 +360,8 @@ export function MiniOffice() {
             {r.label}
           </button>
         ))}
-        <Link href={SITE.demoPath} className="ml-auto text-[0.95rem] font-semibold text-lamp underline-offset-4 hover:underline" onClick={() => track("cta_click", { cta: "full_demo", place: "world" })}>
-          Open the full demo <span aria-hidden="true">→</span>
+        <Link href={SITE.demoPath} className="ml-auto text-[0.95rem] font-semibold text-lamp underline-offset-4 hover:underline" onClick={() => track("cta_click", { cta: "sign_in", place: "world" })}>
+          Sign in <span aria-hidden="true">→</span>
         </Link>
       </div>
       <p className="mt-3 min-h-[1.6em] text-[0.95rem] text-ivory/65" aria-live="polite">
