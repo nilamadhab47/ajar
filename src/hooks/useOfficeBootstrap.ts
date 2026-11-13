@@ -12,9 +12,10 @@ import { usePeopleStore } from "@/features/people/people-store";
 import { useProfileStore } from "@/features/presence/presence-store";
 import { sendWorldCommand, worldRuntime } from "@/features/world/world-bridge";
 import { useWorldStore } from "@/features/world/world-store";
-import { isMockMode } from "@/lib/env";
+import { env, isMockMode } from "@/lib/env";
 import { shortcuts } from "@/lib/shortcuts";
 import { firstName } from "@/lib/utils";
+import { apiRequest } from "@/services/api/api-client";
 import { chatApi } from "@/services/api/chat-api";
 import { workspaceApi } from "@/services/api/workspace-api";
 import { getRealtime } from "@/services/realtime/realtime-client";
@@ -126,6 +127,16 @@ export function useOfficeBootstrap(workspaceId: string): void {
         await realtime.connect();
         if (cancelled) return;
         useAppStore.getState().set({ workspace });
+        if (env.apiBaseUrl) {
+          try {
+            const listed = await apiRequest<{ offices: { id: string; title: string | null; deskId: string | null }[] }>("/workspaces");
+            const mine = listed.offices.find((office) => office.id === workspaceId);
+            if (!cancelled && mine?.deskId) useDeskStore.getState().claim(mine.deskId);
+            if (!cancelled && mine?.title) useProfileStore.setState({ title: mine.title });
+          } catch {
+            // The floor still opens when the saved desk cannot be read.
+          }
+        }
         if (!useProfileStore.getState().onboarded) ui().openDialog({ type: "onboarding" });
       } catch (err) {
         if (!cancelled) useAppStore.getState().set({ connection: "error", connectionDetail: err instanceof Error ? err.message : "Failed to load the workspace" });
