@@ -26,10 +26,10 @@ export function StatusBadges() {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {isMockMode && (
-        <Tooltip label="Demo mode" hint="Participants, chat and conversations are simulated locally. No backend is connected." side="bottom">
+        <Tooltip label="Simulated" hint="Participants, chat and conversations are simulated locally. No backend is connected." side="bottom">
           <span className={`${pill} border-busy/50 bg-[#FFF6E4] text-[#8A5A0B]`} tabIndex={0}>
             <FlaskConical className="size-3.5" aria-hidden />
-            Demo mode
+            Simulated
           </span>
         </Tooltip>
       )}

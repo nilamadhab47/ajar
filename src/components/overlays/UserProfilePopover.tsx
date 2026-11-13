@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { DoorOpen, Footprints, Hand, MapPin, MessageSquare, Pencil, Shirt, StickyNote, UserRoundSearch, X } from "lucide-react";
 import { AvatarPreview } from "@/components/common/AvatarImage";
-import { DemoTag, StatusIndicator } from "@/components/common/StatusIndicator";
+import { StatusIndicator } from "@/components/common/StatusIndicator";
 import { Button, IconButton } from "@/components/ui/button";
 import { currentUserId } from "@/features/people/people-store";
 import { useChatStore } from "@/features/chat/chat-store";
@@ -45,7 +45,6 @@ export function UserProfilePopover() {
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 text-[15px] font-semibold leading-tight">
                 <span className="truncate">{isMe ? `${user.displayName} (you)` : user.displayName}</span>
-                {user.isDemo && <DemoTag />}
               </p>
               {user.title && <p className="truncate text-xs text-muted">{user.title}</p>}
               <StatusIndicator status={user.status} className="mt-1" />

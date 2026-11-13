@@ -32,7 +32,7 @@ export function Invitation() {
               )}
             </div>
             <p className="mt-8 max-w-[34rem] text-[0.88rem] text-ivory/55">
-              Ajar is in early development. The demo runs in your browser with simulated teammates. Shared offices
+              Ajar is in early development. It runs in your browser with simulated teammates. Shared offices
               with real people and real audio are being built now.
             </p>
           </Reveal>
@@ -71,7 +71,7 @@ export function Invitation() {
               {NAV_LINKS.map((l) => (
                 <li key={l.href}><a href={l.href} className="text-ivory/80 underline-offset-4 hover:text-ivory hover:underline">{l.label}</a></li>
               ))}
-              <li><Link href={SITE.demoPath} className="text-ivory/80 underline-offset-4 hover:text-ivory hover:underline">The full demo</Link></li>
+              <li><Link href={SITE.demoPath} className="text-ivory/80 underline-offset-4 hover:text-ivory hover:underline">The office</Link></li>
               {SITE.social.map((s) => (
                 <li key={s.href}><a href={s.href} rel="me noopener" className="text-ivory/80 underline-offset-4 hover:text-ivory hover:underline">{s.label}</a></li>
               ))}

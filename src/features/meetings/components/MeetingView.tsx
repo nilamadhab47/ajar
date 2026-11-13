@@ -41,7 +41,7 @@ function ParticipantTile({ user, self }: { user: User; self: boolean }) {
         {self ? "You" : firstName(user.displayName)}
         {self && mic !== "on" && <MicOff className="size-3" aria-label="Muted" />}
       </span>
-      {!self && <span className="absolute right-1 top-1 rounded bg-ink/75 px-1 py-0.5 text-[10px] text-white/75">No media in demo</span>}
+      {!self && <span className="absolute right-1 top-1 rounded bg-ink/75 px-1 py-0.5 text-[10px] text-white/75">No media yet</span>}
     </div>
   );
 }
@@ -138,7 +138,7 @@ export function MeetingView() {
                 <MenuLabel>Invite participants</MenuLabel>
                 {invitable.length === 0 && <MenuItem disabled>Everyone is already invited</MenuItem>}
                 {invitable.map((u) => (
-                  <MenuItem key={u.id} onSelect={() => { useMeetingStore.getState().invite(meeting.id, [u.id]); ui().toast({ title: `Invited ${firstName(u.displayName)}`, body: "Demo participants don't accept invitations — a backend would notify them." }); }}>
+                  <MenuItem key={u.id} onSelect={() => { useMeetingStore.getState().invite(meeting.id, [u.id]); ui().toast({ title: `Invited ${firstName(u.displayName)}` }); }}>
                     <AvatarImage avatar={u.avatar} size={20} />{u.displayName}
                   </MenuItem>
                 ))}

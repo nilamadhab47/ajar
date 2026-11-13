@@ -25,7 +25,7 @@ export function LocalMediaTiles() {
       {screen === "on" && (
         <figure className="pointer-events-auto relative overflow-hidden rounded-lg border border-line bg-ink shadow-float">
           <LocalVideo kind="screen" className="h-[104px] w-[184px] object-contain" />
-          <figcaption className="absolute bottom-1 left-1 rounded bg-ink/70 px-1.5 py-0.5 text-[11px] text-white">Your screen · not broadcast in demo</figcaption>
+          <figcaption className="absolute bottom-1 left-1 rounded bg-ink/70 px-1.5 py-0.5 text-[11px] text-white">Your screen · not broadcast</figcaption>
           <button type="button" aria-label="Stop sharing" onClick={() => void mediaActions.toggleScreenShare()} className="absolute right-1 top-1 rounded bg-ink/70 p-1 text-white hover:bg-ink"><X className="size-3" /></button>
         </figure>
       )}

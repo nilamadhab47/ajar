@@ -4,7 +4,6 @@ import { Footprints, Lock, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { AvatarImage } from "@/components/common/AvatarImage";
 import { EmptyState } from "@/components/common/LoadingState";
-import { DemoTag } from "@/components/common/StatusIndicator";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { currentUserId } from "@/features/people/people-store";
@@ -53,7 +52,6 @@ export function RoomDialog({ roomId }: { roomId: string }) {
                 <li key={id} className="flex items-center gap-2 rounded-md bg-app px-2 py-1.5">
                   <AvatarImage avatar={users[id].avatar} size={24} />
                   <span className="min-w-0 flex-1 truncate text-[13px]">{id === currentUserId() ? "You" : users[id].displayName}</span>
-                  {users[id].isDemo && <DemoTag />}
                 </li>
               ))}
             </ul>
@@ -71,7 +69,7 @@ export function RoomDialog({ roomId }: { roomId: string }) {
           </div>
         ) : (
           <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); meetingActions.start(title.trim() || `${room.name} meeting`, "meeting", room.id); }}>
-            <label className="block text-xs font-medium" htmlFor="room-meeting-title">Start a demo meeting here</label>
+            <label className="block text-xs font-medium" htmlFor="room-meeting-title">Start a meeting here</label>
             <div className="flex gap-2">
               <input id="room-meeting-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={`${room.name} meeting`} maxLength={60}
                 className="h-9 min-w-0 flex-1 rounded-md border border-line bg-app px-2.5 text-sm focus:border-accent focus:bg-panel focus:outline-none" />

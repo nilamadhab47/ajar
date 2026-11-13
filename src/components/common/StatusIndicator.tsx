@@ -21,7 +21,3 @@ export function StatusIndicator({ status, className }: { status: PresenceStatus;
   );
 }
 
-/** Marks simulated participants so they are never mistaken for real colleagues. */
-export function DemoTag() {
-  return <span className="rounded bg-hover px-1 py-px text-[10px] font-medium uppercase tracking-wide text-muted">Demo</span>;
-}

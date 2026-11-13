@@ -78,7 +78,7 @@ export function WhiteboardDialog({ boardId, title }: { boardId: string; title: s
   };
 
   return (
-    <Dialog open onClose={() => useUiStore.getState().closeDialog()} title={title} description="Local to this browser in the demo. A backend would sync strokes and notes to everyone in the room." className="w-[min(96vw,1040px)]">
+    <Dialog open onClose={() => useUiStore.getState().closeDialog()} title={title} description="Local to this browser. A backend would sync strokes and notes to everyone in the room." className="w-[min(96vw,1040px)]">
       <div className="flex flex-wrap items-center gap-1.5 border-b border-line px-3 py-2" role="toolbar" aria-label="Whiteboard tools">
         <IconButton label="Pen" active={tool === "pen"} className="border border-line" onClick={() => setTool("pen")}><Pencil className="size-4" /></IconButton>
         <IconButton label="Eraser" active={tool === "eraser"} className="border border-line" onClick={() => setTool("eraser")}><Eraser className="size-4" /></IconButton>

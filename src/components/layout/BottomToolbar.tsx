@@ -23,7 +23,7 @@ const ACTIONS: { id: AvatarAction; label: string }[] = [
 ];
 
 const DEVICE_HINT: Record<DeviceState, string> = {
-  off: "Off", on: "On · local only in demo", requesting: "Waiting for permission…", denied: "Blocked in browser settings", unavailable: "Not available on this device",
+  off: "Off", on: "On · local only", requesting: "Waiting for permission…", denied: "Blocked in browser settings", unavailable: "Not available on this device",
 };
 
 const Divider = () => <span className="mx-1 h-5 w-px shrink-0 bg-white/15" aria-hidden />;
@@ -56,7 +56,7 @@ export function BottomToolbar() {
       <DeviceButton kind="Camera" state={media.camera} shortcut="V" onClick={() => void mediaActions.toggleCamera()} />
       <IconButton
         tone="dark" label="Share screen" active={media.screen === "on"} disabled={!screenSupported || media.screen === "requesting"}
-        hint={!screenSupported ? "Not supported in this browser" : media.screen === "on" ? "Sharing locally · not broadcast in demo" : "Local preview · broadcasting needs a media backend"}
+        hint={!screenSupported ? "Not supported in this browser" : media.screen === "on" ? "Sharing locally · not broadcast" : "Local preview · broadcasting needs a media backend"}
         onClick={() => void mediaActions.toggleScreenShare()}
       >
         <MonitorUp className="size-[18px]" />

@@ -80,7 +80,7 @@ export function OfficesPage() {
     return (
       <AuthShell>
         <h1 className="text-xl font-semibold">Your offices</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted">Opening the demo office…</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">Opening the office…</p>
       </AuthShell>
     );
   }

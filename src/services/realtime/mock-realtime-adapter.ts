@@ -67,8 +67,8 @@ export class MockRealtimeAdapter extends BaseRealtimeAdapter {
     const res = await fetch(DEMO_FLOORS[0].mapUrl);
     if (attempt !== this.attempt) return;
     if (!res.ok) {
-      this.setState("error", "Could not load the demo map");
-      throw new Error("Could not load the demo map");
+      this.setState("error", "Could not load the office map");
+      throw new Error("Could not load the office map");
     }
     const json = (await res.json()) as TiledMap;
     if (attempt !== this.attempt) return;

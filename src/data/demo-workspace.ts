@@ -78,8 +78,8 @@ export const DEMO_CHANNEL_LINES: [channel: string, sender: string, text: string]
   ["random", "mateo", "Garden bench is the best seat in the office. Fight me."],
 ];
 export const DEMO_DM_REPLIES = [
-  "Sounds good! (automated demo reply)",
-  "Let me check and get back to you. (automated demo reply)",
-  "Sure — walk over whenever. (automated demo reply)",
+  "Sounds good!",
+  "Let me check and get back to you.",
+  "Sure — walk over whenever.",
 ];
 export const DEMO_NEARBY_REPLIES = ["Hey! 👋", "Oh hi!", "Good to see you", "What's up?", "😄"];

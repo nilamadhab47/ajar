@@ -73,7 +73,7 @@ export const useKnockStore = create<KnockState>((set, get) => ({
     }
     const recent = get().knocksThisHour.filter((t) => Date.now() - t < 60 * 60 * 1000);
     if (recent.length >= 10) {
-      toast({ title: "That's enough knocks for now", body: "Ten knocks an hour is the demo limit." });
+      toast({ title: "That's enough knocks for now", body: "Ten knocks an hour is the limit." });
       return;
     }
     if (door === "open") {

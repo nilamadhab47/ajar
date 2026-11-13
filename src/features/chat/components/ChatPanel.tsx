@@ -144,7 +144,7 @@ function Composer({ placeholder, onSend }: { placeholder: string; onSend: (text:
           setAttachments((list) => [...list, ...files].slice(0, 5));
           e.target.value = "";
         }} />
-        <IconButton label="Attach files" hint="Names only in demo" className="size-7" onClick={() => fileRef.current?.click()}><Paperclip className="size-3.5" /></IconButton>
+        <IconButton label="Attach files" hint="The name is kept. The file stays on this computer." className="size-7" onClick={() => fileRef.current?.click()}><Paperclip className="size-3.5" /></IconButton>
         <label className="sr-only" htmlFor={`composer-${placeholder}`}>{placeholder}</label>
         <textarea
           id={`composer-${placeholder}`} value={text} rows={Math.min(5, Math.max(1, text.split("\n").length))} placeholder={placeholder}
