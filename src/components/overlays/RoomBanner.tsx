@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { currentUserId } from "@/features/people/people-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { useAllUsers } from "@/features/people/use-people";
+import { usePlaceStore } from "@/features/office/place-store";
 import { useWorldStore } from "@/features/world/world-store";
 import { useUiStore } from "@/stores/ui-store";
 
 /** Announces the area the player is standing in and, for private zones, who shares it. */
 export function RoomBanner() {
   const room = useWorldStore((s) => s.rooms.find((r) => r.id === s.currentRoomId));
+  const note = usePlaceStore((s) => (room ? s.places.find((place) => place.kind === "room" && place.id === room.id)?.note : null) ?? null);
   const occupants = useWorldStore((s) => (s.currentRoomId ? s.roomOccupants[s.currentRoomId] : undefined));
   const conversation = useConversationStore((s) => s.active);
   const users = useAllUsers();
@@ -33,6 +35,7 @@ export function RoomBanner() {
               {room.isPrivate && <Lock className="size-3 text-muted" aria-label="Private area" />}
               {room.zone === "open" && room.quiet && <VolumeX className="size-3 text-muted" aria-label="Quiet area" />}
             </p>
+            {note && <p className="text-[11px] leading-tight text-ink">{note}</p>}
             <p className="text-[11px] leading-tight text-muted">
               {room.isPrivate ? "Private area — only people inside can hear each other" : room.zone === "open" && room.quiet ? "Quiet zone — keep voices down" : "Open area"}
               {room.capacity ? ` · ${(occupants ?? []).length}/${room.capacity}` : ""}

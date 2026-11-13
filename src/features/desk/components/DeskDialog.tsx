@@ -13,6 +13,7 @@ import { sendWorldCommand } from "@/features/world/world-bridge";
 import { cn } from "@/lib/utils";
 import { worldApi } from "@/services/api/world-api";
 import { useUiStore } from "@/stores/ui-store";
+import { usePlaceStore } from "@/features/office/place-store";
 import { deskOwner, deskSeatId, useDeskStore } from "../desk-store";
 
 interface Props {
@@ -28,6 +29,7 @@ export function DeskDialog({ workspaceId, deskId, label, hot }: Props) {
   const myDeskId = useDeskStore((s) => s.myDeskId);
   const decor = useDeskStore((s) => s.decor[deskId]) ?? [];
   const owner = useUser(ownerId);
+  const note = usePlaceStore((s) => s.places.find((place) => place.kind === "desk" && place.id === deskId)?.note ?? null);
   const mine = ownerId === currentUserId();
   const ui = useUiStore.getState;
   const close = () => ui().closeDialog();
@@ -52,6 +54,7 @@ export function DeskDialog({ workspaceId, deskId, label, hot }: Props) {
   return (
     <Dialog open onClose={close} title={`${label} ${deskId}`} description={hot ? "Hot desk — anyone can sit here; claiming reserves it for you." : "Personal workspace"}>
       <div className="space-y-4 p-5">
+        {note && <p className="text-sm text-ink">{note}</p>}
         <div className="flex items-center gap-3 rounded-lg bg-app p-3">
           {owner ? <AvatarImage avatar={owner.avatar} size={40} /> : <span className="flex size-10 items-center justify-center rounded-md border border-dashed border-ink/25 text-muted"><Armchair className="size-4" aria-hidden /></span>}
           <div className="min-w-0 flex-1">

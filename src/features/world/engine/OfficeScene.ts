@@ -3,6 +3,7 @@ import { currentUserId } from "@/features/people/people-store";
 import { useAvatarStore } from "@/features/avatar/avatar-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { useDeskStore } from "@/features/desk/desk-store";
+import { areaLabel, usePlaceStore } from "@/features/office/place-store";
 import { getLocalUser, usePeopleStore } from "@/features/people/people-store";
 import { useProfileStore } from "@/features/presence/presence-store";
 import { WORLD_CONFIG } from "@/lib/config";
@@ -119,7 +120,7 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     this.objects.forEach((o) => this.createView(o));
     this.grid = new NavGrid(this.map, this.objects);
     this.rebuildSeats();
-    this.map.labels.forEach((l) => this.addLabel(l.text, l.x, l.y));
+    this.drawLabels();
 
     // ---- local player
     const spawn = this.map.spawns.find((s) => s.id === this.spawnId) ?? this.map.spawns[0] ?? { x: 64, y: 64, direction: "down" as const };
@@ -162,6 +163,7 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     this.publisher = new MovementPublisher(realtime, currentUserId());
     this.bindRealtime();
     this.bindStores();
+    this.drawLabels();
     this.disposers.push(
       worldCommands.on("command", (c) => this.handleCommand(c)),
       shortcuts.on("interact", () => this.interaction.trigger()),
@@ -413,12 +415,30 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
     this.seats = new Map(buildSeats(this.objects).map((s) => [s.id, { ...s, occupantId: occupied.get(s.id) ?? null }]));
   }
 
-  private addLabel(text: string, x: number, y: number): void {
+  private drawLabels(): void {
+    for (const label of this.labels) label.destroy(true);
+    this.labels = [];
+    for (const label of this.map.labels) {
+      const area = areaLabel(label.text);
+      this.addLabel(area.name, label.x, label.y, area.note);
+    }
+  }
+
+  private addLabel(text: string, x: number, y: number, note: string | null): void {
     const label = this.add.text(0, 0, text, { fontFamily: FONT, fontSize: "12px", fontStyle: "500", color: "#6B6F78", resolution: 2 }).setOrigin(0.5);
     label.texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
     const w = label.width + 20;
     const bg = this.add.graphics().fillStyle(0xffffff, 0.72).fillRoundedRect(-w / 2, -11, w, 22, 11);
-    this.labels.push(this.add.container(x, y, [bg, label]).setDepth(Depth.labels));
+    const parts: Phaser.GameObjects.GameObject[] = [bg, label];
+    if (note) {
+      const line = this.add.text(0, 18, note, {
+        fontFamily: FONT, fontSize: "11px", color: "#6B6F78", align: "center",
+        wordWrap: { width: 180 }, resolution: 2,
+      }).setOrigin(0.5, 0);
+      line.texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
+      parts.push(line);
+    }
+    this.labels.push(this.add.container(x, y, parts).setDepth(Depth.labels));
   }
 
   // ------------------------------------------------------------------ effects
@@ -623,6 +643,9 @@ export class OfficeScene extends Phaser.Scene implements WorldContext {
       }),
       useWorldStore.subscribe((s, prev) => {
         if (s.editMode !== prev.editMode) this.edit.setEnabled(s.editMode);
+      }),
+      usePlaceStore.subscribe((s, prev) => {
+        if (s.places !== prev.places) this.drawLabels();
       }),
     );
   }

@@ -7,6 +7,7 @@ import { RoomDialog } from "@/features/meetings/components/RoomDialog";
 import { HelpDialog, LeaveDialog, SettingsDialog } from "@/features/settings/components/SettingsDialogs";
 import { WhiteboardDialog } from "@/features/whiteboard/components/WhiteboardDialog";
 import { NoteDialog } from "@/features/knock/components/NoteDialog";
+import { LabelsDialog } from "@/features/office/components/LabelsDialog";
 import { FloorSelector } from "@/features/world/components/FloorSelector";
 import { useUiStore } from "@/stores/ui-store";
 
@@ -39,5 +40,7 @@ export function DialogHost({ workspaceId }: { workspaceId: string }) {
       return <LeaveDialog workspaceId={workspaceId} />;
     case "note":
       return <NoteDialog key={dialog.userId} userId={dialog.userId} />;
+    case "labels":
+      return <LabelsDialog workspaceId={workspaceId} />;
   }
 }

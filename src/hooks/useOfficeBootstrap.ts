@@ -6,6 +6,8 @@ import { useAvatarStore } from "@/features/avatar/avatar-store";
 import { useChatStore } from "@/features/chat/chat-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { deskSeatId, useDeskStore } from "@/features/desk/desk-store";
+import { usePlaceStore } from "@/features/office/place-store";
+import type { OfficePlace } from "@/features/office/places";
 import { mediaActions, useMediaStore } from "@/features/media/media-controller";
 import { useMeetingStore } from "@/features/meetings/meeting-store";
 import { usePeopleStore } from "@/features/people/people-store";
@@ -129,10 +131,15 @@ export function useOfficeBootstrap(workspaceId: string): void {
         useAppStore.getState().set({ workspace });
         if (env.apiBaseUrl) {
           try {
-            const listed = await apiRequest<{ offices: { id: string; title: string | null; deskId: string | null }[] }>("/workspaces");
+            const listed = await apiRequest<{ offices: { id: string; role: string; title: string | null; deskId: string | null }[] }>("/workspaces");
             const mine = listed.offices.find((office) => office.id === workspaceId);
+            if (!cancelled) usePlaceStore.getState().setRole(mine?.role ?? null);
             if (!cancelled && mine?.deskId) useDeskStore.getState().claim(mine.deskId);
             if (!cancelled && mine?.title) useProfileStore.setState({ title: mine.title });
+            if (!cancelled && mine) {
+              const listedPlaces = await apiRequest<{ places: OfficePlace[] }>(`/workspaces/${workspaceId}/places`);
+              if (!cancelled) usePlaceStore.getState().setPlaces(listedPlaces.places);
+            }
           } catch {
             // The floor still opens when the saved desk cannot be read.
           }
@@ -147,6 +154,7 @@ export function useOfficeBootstrap(workspaceId: string): void {
       cancelled = true;
       disposers.forEach((d) => d());
       realtime.disconnect();
+      usePlaceStore.getState().reset();
       useAppStore.getState().set({ workspace: null, connection: "idle" });
     };
   }, [workspaceId]);
