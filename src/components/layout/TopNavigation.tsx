@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Building2, Check, ChevronDown, CircleHelp, Hash, MapPin, Menu as MenuIcon, Settings, UserRound } from "lucide-react";
+import { Bell, Building2, Check, ChevronDown, CircleHelp, Hash, MapPin, Menu as MenuIcon, Settings, Tag, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AvatarImage } from "@/components/common/AvatarImage";
@@ -15,6 +15,7 @@ import { sendWorldCommand } from "@/features/world/world-bridge";
 import { useWorldStore } from "@/features/world/world-store";
 import { walkToMyDesk } from "@/hooks/useOfficeBootstrap";
 import { useAccessToken } from "@/features/auth/session";
+import { usePlaceStore } from "@/features/office/place-store";
 import { BRAND } from "@/lib/config";
 import { env } from "@/lib/env";
 import { apiRequest } from "@/services/api/api-client";
@@ -113,6 +114,7 @@ export function TopNavigation() {
       .catch(() => setOffices([]));
   }, [signedIn]);
   const unread = useUiStore((s) => s.activity.length);
+  const canLabel = usePlaceStore((s) => s.role === "owner");
   const ui = useUiStore.getState;
   const floor = workspace?.floors.find((f) => f.id === floorId);
 
@@ -177,6 +179,11 @@ export function TopNavigation() {
       <IconButton label="Help and controls" side="bottom" className="hidden sm:inline-flex" onClick={() => ui().openDialog({ type: "help" })}>
         <CircleHelp className="size-4" />
       </IconButton>
+      {canLabel && (
+        <IconButton label="Labels" side="bottom" className="hidden sm:inline-flex" onClick={() => ui().openDialog({ type: "labels" })}>
+          <Tag className="size-4" />
+        </IconButton>
+      )}
       <IconButton label="Settings" side="bottom" className="hidden sm:inline-flex" onClick={() => ui().openDialog({ type: "settings" })}>
         <Settings className="size-4" />
       </IconButton>

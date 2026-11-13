@@ -6,7 +6,7 @@ Ajar is a top-down pixel-art office for distributed teams. You can see who is ar
 
 The name means a door left slightly open: approachable, not wide open. Walking near someone makes them knockable. It never opens a microphone. Each person has a **status** (what they are doing) and a **door** (how they want to be approached). The door shows as a lantern: a full lamp is ajar, a half lamp means ask first, an unlit lamp means closed.
 
-This repository is the playable frontend and the API. The office floor is empty until people join. The product name stays Ajar.
+This repository is the playable frontend. There is no backend yet. A mock adapter in the browser plays the other people. Cruit is the demo company. The office you walk into is named Ajar.
 
 ## Run it
 
@@ -15,7 +15,7 @@ Requires Node 20+.
 ```bash
 npm install
 cp .env.example .env.local   # optional; defaults to mock mode
-npm run dev                  # http://localhost:3000 is the marketing site
+npm run dev                  # http://localhost:3000  →  /workspace/demo/office
 ```
 
 | Script | What it does |
@@ -27,10 +27,10 @@ npm run dev                  # http://localhost:3000 is the marketing site
 | `npm run assets` | Regenerates `public/assets/**` from `src/art` |
 | `npm run maps` | Regenerates `public/maps/*.json` from `scripts/build-maps.ts` |
 
-`/` is the marketing landing page ([docs/SITE.md](docs/SITE.md)); `/demo` now goes to sign-in.
+`/` is the marketing landing page ([docs/SITE.md](docs/SITE.md)); `/demo` opens the office at `/workspace/demo/office`.
 The landing page's pixel art is baked from the purchased Imersa pack. Put `Office_Pixel_Art_Premium_v1.0/` next to
 this repository, not inside it, and run `npm run site-assets` once. Set `AJAR_ART_PACK` if the pack lives somewhere else.
-Leaving an office returns to that office's lobby.
+`/workspace/demo` is the lobby you land on after "Leave office".
 
 ## The door
 
@@ -40,7 +40,7 @@ Leaving an office returns to that office's lobby.
 | Ask first (the default) | They accept, decline, or reply later | Half lamp |
 | Closed | Leave a note, up to 280 characters | Unlit lamp with a slash |
 
-Focus and Do not disturb close the door until that status ends. A knock does not turn the microphone or camera on. A conversation that has no call yet says **Simulated**.
+Focus and Do not disturb close the door until that status ends. A knock does not turn the microphone or camera on. In the demo the other person is simulated, and the conversation card says **Simulated**.
 
 Desk drops, personal office hours, the focus timer, and "while you were away" are specified and not built yet. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -81,7 +81,7 @@ One furnished floor, 64 × 40 tiles: an open workspace with 12 desks, Atlas and 
 
 Characters are layered: skin, hair, face, clothes, glasses, hats, and small accessories. They idle, walk, sit, wave, dance, clap, and celebrate. Nameplates show status and the lantern.
 
-Around the map: People, chat, meetings, a mini-map, a profile card, a nearby card, whiteboards, and an avatar builder. Nearby speech bubbles stay separate from chat.
+Around the map: People, chat, meetings, a mini-map, a profile card, a nearby card, whiteboards, and an avatar builder. Chat has channels, a group, and direct messages. Nearby speech bubbles stay separate from that history. Demo people are always labelled **Demo**.
 
 Your name, look, door, desk, and a few UI preferences persist in this browser under keys prefixed `ajar.`.
 
@@ -111,7 +111,7 @@ Copy `server/.env.example` to `server/.env` and set `JWT_SECRET` to at least 32 
 npm --prefix server run start:dev
 ```
 
-`GET http://localhost:4000/health` checks Postgres. `POST /auth/magic-link` sends a sign-in link to Mailpit at http://127.0.0.1:8025. `POST /auth/password/sign-up` takes a name, email, and password, sends a confirmation link to a new address, and saves them only after that link is used. An address that already has an account gets a notice instead, and its password stays unchanged. `POST /auth/password/sign-in` signs in a person who already confirmed one. Set `RESEND_API_KEY` when the message should reach a real inbox. The from-address is `Ajar <hello@meetajar.com>`, on the verified meetajar.com domain. `GET /auth/google` and `GET /auth/microsoft` start provider sign-in once those client ids are set. A signed-in person can `POST /organizations` with the company, the office, a one-line description, their designation, department, and an optional desk. They become the owner. An empty desk takes the nearest free one. An owner or admin can invite someone by email. Accepting that invite requires a signed-in person with the same email. Office queries only return rows for a member of that office. A guest cannot read invitations. `/login`, `/invite`, and `/offices` are the sign-in pages. A member can `POST /floors/:id/session` for a 60-second ticket. The access token is not part of the socket address. With no API address, the demo office still opens on its own.
+`GET http://localhost:4000/health` checks Postgres. `POST /auth/magic-link` sends a sign-in link to Mailpit at http://127.0.0.1:8025. `POST /auth/password/sign-up` takes a name, email, and password, sends a confirmation link to a new address, and saves them only after that link is used. An address that already has an account gets a notice instead, and its password stays unchanged. `POST /auth/password/sign-in` signs in a person who already confirmed one. Set `RESEND_API_KEY` when the message should reach a real inbox. The from-address is `Ajar <hello@meetajar.com>`, on the verified meetajar.com domain. `GET /auth/google` and `GET /auth/microsoft` start provider sign-in once those client ids are set. A signed-in person can `POST /organizations` with the company, the office, a one-line description, their designation, department, and an optional desk. They become the owner. An empty desk takes the nearest free one. The owner can rename an area and leave one line on an area, a room, or a desk. An owner or admin can invite someone by email. Accepting that invite requires a signed-in person with the same email. Office queries only return rows for a member of that office. A guest cannot read invitations. `/login`, `/invite`, and `/offices` are the sign-in pages. A member can `POST /floors/:id/session` for a 60-second ticket. The access token is not part of the socket address. With no API address, the demo office still opens on its own.
 
 ## Connecting a backend later
 
@@ -160,4 +160,4 @@ Job titles such as CEO or HR are a line on the profile. They are not permissions
 - Floors 2–5 are placeholders.
 - The mark in the corner is still the older arch. The welcome sign reads AJAR. The door-and-lamp logo is not drawn yet.
 - The art in `public/assets` is generated by this repo. It is starter art, meant to be replaced.
-- While realtime is still in the browser, `window.__ajar` exposes the world stores and the command bus for debugging.
+- In demo mode, `window.__ajar` exposes the world stores and the command bus for debugging.

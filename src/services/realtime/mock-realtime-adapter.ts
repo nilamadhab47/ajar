@@ -1,6 +1,6 @@
 import { DEMO_CHANNEL_LINES, DEMO_DM_REPLIES, DEMO_NEARBY_REPLIES, DEMO_FLOORS } from "@/data/demo-workspace";
 import { currentUserId } from "@/features/people/people-store";
-import { DEMO_POIS, type DemoParticipant } from "@/data/demo-participants";
+import { DEMO_DESK_ASSIGNMENTS, DEMO_PARTICIPANTS, DEMO_POIS, type DemoParticipant } from "@/data/demo-participants";
 import type { AnimationState, Direction } from "@/features/avatar/types/avatar.types";
 import { NavGrid } from "@/features/world/engine/CollisionSystem";
 import { parseTiledMap, roomAt } from "@/features/world/engine/MapLoader";
@@ -76,7 +76,7 @@ export class MockRealtimeAdapter extends BaseRealtimeAdapter {
     this.grid = new NavGrid(this.map, this.map.objects);
     this.seats = new Map(buildSeats(this.map.objects).map((s) => [s.id, s]));
     const now = Date.now();
-    this.bots = [];
+    this.bots = DEMO_PARTICIPANTS.map((def, i) => this.createBot(def, i, now));
     this.nextChatAt = now + 40_000;
     this.nextStatusAt = now + 55_000;
     this.lastTick = now;
@@ -189,7 +189,7 @@ export class MockRealtimeAdapter extends BaseRealtimeAdapter {
         userId: b.id, status: b.status, currentLocation: roomAt(this.map!.rooms, b.x, b.y - 4)?.name ?? "Hallway",
         currentActivity: b.def.activity, lastSeenAt: Date.now(),
       })),
-      deskAssignments: {},
+      deskAssignments: DEMO_DESK_ASSIGNMENTS,
     });
   }
 
@@ -213,7 +213,7 @@ export class MockRealtimeAdapter extends BaseRealtimeAdapter {
         }
       }
     }
-    if (this.bots.length > 0 && now >= this.nextChatAt) {
+    if (now >= this.nextChatAt) {
       const [channelId, sender, message] = DEMO_CHANNEL_LINES[this.chatLine++ % DEMO_CHANNEL_LINES.length];
       this.emit("chat:message", { message: { id: uid("m"), channelId, senderId: `demo-${sender}`, message, timestamp: now, reactions: [] } });
       this.nextChatAt = now + 55_000 + this.rng() * 40_000;

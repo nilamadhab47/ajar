@@ -4,13 +4,13 @@ import { Footprints, Lock, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { AvatarImage } from "@/components/common/AvatarImage";
 import { EmptyState } from "@/components/common/LoadingState";
-import { DemoTag } from "@/components/common/StatusIndicator";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { currentUserId } from "@/features/people/people-store";
 import { useConversationStore } from "@/features/conversation/conversation-store";
 import { useAllUsers } from "@/features/people/use-people";
 import { sendWorldCommand } from "@/features/world/world-bridge";
+import { usePlaceStore } from "@/features/office/place-store";
 import { useWorldStore } from "@/features/world/world-store";
 import { useUiStore } from "@/stores/ui-store";
 import { meetingActions } from "../meeting-actions";
@@ -18,6 +18,7 @@ import { useMeetingStore } from "../meeting-store";
 
 export function RoomDialog({ roomId }: { roomId: string }) {
   const room = useWorldStore((s) => s.rooms.find((r) => r.id === roomId));
+  const note = usePlaceStore((s) => s.places.find((place) => place.kind === "room" && place.id === roomId)?.note ?? null);
   const occupants = useWorldStore((s) => s.roomOccupants[roomId]);
   const inside = useWorldStore((s) => s.currentRoomId === roomId);
   const meeting = useMeetingStore((s) => s.meetings.find((m) => m.roomId === roomId && (m.status === "active" || m.status === "waiting")));
@@ -34,6 +35,7 @@ export function RoomDialog({ roomId }: { roomId: string }) {
   return (
     <Dialog open onClose={close} title={room.name} description={room.zone === "meeting" ? `Meeting room · ${room.equipment.join(", ")}` : room.isPrivate ? "Private area" : "Open area"}>
       <div className="space-y-4 p-5">
+        {note && <p className="text-sm text-ink">{note}</p>}
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center gap-1.5 rounded-md bg-app px-2 py-1"><Users className="size-3.5 text-muted" aria-hidden />{present.length}{room.capacity ? ` / ${room.capacity}` : ""} inside</span>
           {room.isPrivate && <span className="inline-flex items-center gap-1.5 rounded-md bg-app px-2 py-1"><Lock className="size-3.5 text-muted" aria-hidden />Private audio zone</span>}
@@ -50,7 +52,6 @@ export function RoomDialog({ roomId }: { roomId: string }) {
                 <li key={id} className="flex items-center gap-2 rounded-md bg-app px-2 py-1.5">
                   <AvatarImage avatar={users[id].avatar} size={24} />
                   <span className="min-w-0 flex-1 truncate text-[13px]">{id === currentUserId() ? "You" : users[id].displayName}</span>
-                  {users[id].isDemo && <DemoTag />}
                 </li>
               ))}
             </ul>

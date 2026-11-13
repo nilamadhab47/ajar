@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AvatarImage } from "@/components/common/AvatarImage";
 import { EmptyState } from "@/components/common/LoadingState";
 import { SearchInput } from "@/components/common/SearchInput";
-import { DemoTag, StatusDot } from "@/components/common/StatusIndicator";
+import { StatusDot } from "@/components/common/StatusIndicator";
 import { IconButton } from "@/components/ui/button";
 import { currentUserId } from "@/features/people/people-store";
 import { useChatStore } from "@/features/chat/chat-store";
@@ -40,7 +40,6 @@ function PersonRow({ user, location, activity }: { user: User; location: string 
         <span className="min-w-0">
           <span className="flex items-center gap-1.5 text-[13px] font-medium leading-tight">
             <span className="truncate">{user.displayName}{isMe ? " (you)" : ""}</span>
-            {user.isDemo && <DemoTag />}
           </span>
           <span className="flex items-center gap-1 truncate text-xs leading-tight text-muted">
             <Lantern door={effectiveDoor(user.status, user.door)} />
@@ -102,6 +101,7 @@ export function PeoplePanel() {
         {visible.map((u) => <PersonRow key={u.id} user={u} location={roomName(u.id)} activity={presence[u.id]?.currentActivity ?? null} />)}
         {visible.length === 0 && <EmptyState title="Nobody matches" hint={q ? `No participant named “${query.trim()}” in this filter.` : "Try a different filter."} />}
       </ul>
+      <p className="border-t border-line px-3 py-2 text-[11px] text-muted">Some colleagues are simulated locally and are not real people.</p>
     </div>
   );
 }

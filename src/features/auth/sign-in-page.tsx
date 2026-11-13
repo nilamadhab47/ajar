@@ -108,6 +108,7 @@ export function SignInPage() {
       <AuthShell>
         <h1 className="text-xl font-semibold">No account is needed here</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted">This office is running on this computer. Sign-in starts when an API address is set.</p>
+        <Button variant="primary" className="mt-6" onClick={() => router.push("/workspace/demo/office")}>Open the office</Button>
       </AuthShell>
     );
   }

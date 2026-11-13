@@ -112,7 +112,7 @@ export function SettingsDialog() {
           <Button size="sm" className="mt-2" onClick={() => { (getRealtime() as MockRealtimeAdapter).simulateDrop(); close(); }}>Simulate a network drop</Button>
         )}
 
-        <SectionTitle>On this computer</SectionTitle>
+        <SectionTitle>Saved data</SectionTitle>
         <p className="mb-2 text-xs text-muted">Clears your saved avatar, profile, desk and preferences, then reloads.</p>
         <Button variant="danger" size="sm" onClick={() => {
           clearAppStorage();
@@ -151,7 +151,8 @@ export function HelpDialog() {
         <SectionTitle>Knocking</SectionTitle>
         <p className="text-[13px] text-muted">
           Walk up to someone: they appear in the Nearby card within {WORLD_CONFIG.proximity.discoveryTiles} tiles. A gold lamp on their name means the door is ajar, a half lamp means ask first, and an unlit lamp means the door is closed.
-          Knock when the door is ajar or ask first. A closed door only takes a note. Focus and Do not disturb close the door. A knock never turns the microphone on. No audio or video leaves your browser.
+          Knock when the door is ajar or ask first. A closed door only takes a note. Focus and Do not disturb close the door. A knock never turns the microphone on.
+          The other person is simulated, and no audio or video leaves your browser.
         </p>
       </div>
     </Dialog>

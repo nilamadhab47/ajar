@@ -29,7 +29,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   init: (channels, messages) => {
     const grouped: Record<string, ChatMessage[]> = {};
     for (const m of [...messages].sort((a, b) => a.timestamp - b.timestamp)) (grouped[m.channelId] ??= []).push(m);
-    set({ channels, messages: grouped, unread: {} });
+    set({ channels, messages: grouped, unread: { "dm-demo-sofia": 1, engineering: 2 } });
   },
   setActive: (channelId) => set((s) => ({ activeChannelId: channelId, threadParentId: null, unread: { ...s.unread, [channelId]: 0 } })),
   openThread: (messageId) => set({ threadParentId: messageId }),

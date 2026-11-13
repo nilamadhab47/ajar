@@ -360,8 +360,8 @@ export function MiniOffice() {
             {r.label}
           </button>
         ))}
-        <Link href={SITE.demoPath} className="ml-auto text-[0.95rem] font-semibold text-lamp underline-offset-4 hover:underline" onClick={() => track("cta_click", { cta: "sign_in", place: "world" })}>
-          Sign in <span aria-hidden="true">→</span>
+        <Link href={SITE.demoPath} className="ml-auto text-[0.95rem] font-semibold text-lamp underline-offset-4 hover:underline" onClick={() => track("cta_click", { cta: "full_demo", place: "world" })}>
+          Open the office <span aria-hidden="true">→</span>
         </Link>
       </div>
       <p className="mt-3 min-h-[1.6em] text-[0.95rem] text-ivory/65" aria-live="polite">

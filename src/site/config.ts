@@ -6,8 +6,8 @@ export const SITE = {
   title: `${BRAND.product} — A Quiet Virtual Office for Remote Teams`,
   description:
     "Ajar brings remote and distributed teams together in a shared virtual office. See who's around, knock before talking, and stay connected across time zones.",
-  /** Sign-in is the way into an office. */
-  demoPath: "/login",
+  /** The full interactive office (the existing app in demo mode). */
+  demoPath: "/demo",
   /**
    * Where "Request early access" goes (a form URL or a mailto:). Empty hides the button, because a
    * visible button has to work.
