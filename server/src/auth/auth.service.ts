@@ -141,8 +141,9 @@ export class AuthService implements OnModuleInit {
       "select id from users where email = $1",
       [normalized],
     );
+    const origin = this.config.get<string>("APP_ORIGIN") ?? "http://localhost:3000";
     if (existing.rows[0]) {
-      await this.sendQuietly(normalized, buildAccountExistsMessage());
+      await this.sendQuietly(normalized, buildAccountExistsMessage(origin));
       return;
     }
 
@@ -153,7 +154,6 @@ export class AuthService implements OnModuleInit {
        values ($1, $2, now() + interval '15 minutes', $3, $4)`,
       [normalized, tokenHash(token), passwordHash, displayName],
     );
-    const origin = this.config.get<string>("APP_ORIGIN") ?? "http://localhost:3000";
     await this.sendQuietly(normalized, buildPasswordConfirmMessage(origin, token));
   }
 
